@@ -1,0 +1,24 @@
+
+> mission-log@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.8 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://100.105.209.72:3000
+- Environments: .env.local
+✓ Ready in 1557ms
+⚠ Warning: Next.js ignored package-lock.json in C:\Users\LalithReddy.b because it is outside the current Git repository (C:\Users\LalithReddy.b\Nasa\mission-log).
+ To use this directory, set `turbopack.root` in your Next.js config.
+
+✓ Running next.config.ts took 133ms
+
+○ Compiling / ...
+ GET / 200 in 31.6s (next.js: 13.3s, application-code: 18.3s)
+ GET / 200 in 6.1s (next.js: 38ms, application-code: 6.1s)
+ GET /blogs 200 in 919ms (next.js: 782ms, application-code: 137ms)
+ GET /about 200 in 555ms (next.js: 414ms, application-code: 141ms)
+ GET /signin 200 in 638ms (next.js: 519ms, application-code: 119ms)
+ GET /missions 200 in 718ms (next.js: 541ms, application-code: 177ms)
+ GET /archive 200 in 838ms (next.js: 686ms, application-code: 152ms)
+  Reload env: .env.local
+  Reload env: .env.local
