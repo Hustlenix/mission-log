@@ -3,6 +3,7 @@ import { Fraunces, Karla, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CustomCursor } from "@/components/custom-cursor";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] bg-background p-3">Skip to content</a>
+        <CustomCursor />
         <SiteHeader />
         <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
