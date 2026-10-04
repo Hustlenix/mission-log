@@ -4,8 +4,8 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24">
       <p className="font-mono text-xs text-accent tracking-widest mb-6">ABOUT</p>
-      <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-8">
-        HI, I&apos;m LALITH.
+      <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight mb-8">
+        Hi, I&apos;m Lalith.
       </h1>
       <div className="prose-mission">
         <p>
@@ -24,7 +24,7 @@ export default function AboutPage() {
         </ul>
         <p>Currently building through Stardance 2026.</p>
       </div>
-      <div className="flex flex-wrap gap-4 mt-12 pt-8 border-t border-border">
+      <div className="flex flex-wrap gap-6 mt-12 pt-8 border-t border-border">
         <a
           href="https://github.com"
           target="_blank"

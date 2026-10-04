@@ -58,9 +58,11 @@ export default async function BlogPostPage({
     <article className="mx-auto max-w-3xl px-4 sm:px-6 py-16">
       <header className="mb-12">
         <p className="font-mono text-xs text-accent tracking-widest mb-4">
-          MISSION LOG / {String(post._id).slice(-3).toUpperCase()}
+          {post.project.toUpperCase()}
         </p>
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-6">{post.title}</h1>
+        <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight mb-6">
+          {post.title}
+        </h1>
         <div className="flex flex-wrap items-center gap-4 font-mono text-xs text-muted">
           <span>
             {post.publishedAt
@@ -71,7 +73,6 @@ export default async function BlogPostPage({
                 }).toUpperCase()
               : ""}
           </span>
-          <span className="text-foreground">{post.project}</span>
           <span>{readTime} MIN READ</span>
         </div>
       </header>
