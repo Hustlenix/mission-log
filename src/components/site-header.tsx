@@ -42,7 +42,7 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center gap-3 group">
             <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" />
             <span className="font-mono text-sm font-semibold tracking-wider text-foreground group-hover:text-accent transition-colors">
-              HUSTLENIX<span className="text-muted">//</span>MISSION_LOG
+              HUSTLENIX<span className="text-muted">{"//"}</span>MISSION_LOG
             </span>
           </Link>
 

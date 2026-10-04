@@ -4,7 +4,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="font-mono text-xs text-muted tracking-wider">
-            HUSTLENIX<span className="text-accent">//</span>MISSION_LOG
+            HUSTLENIX<span className="text-accent">{"//"}</span>MISSION_LOG
           </div>
           <div className="font-mono text-xs text-muted tracking-wider">
             BUILDING THINGS UNTIL THEY WORK
