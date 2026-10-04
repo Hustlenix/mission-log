@@ -7,10 +7,11 @@ export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
   await requireAuthor();
+
   let posts: Awaited<ReturnType<typeof Post.find>> = [];
   try {
     await connectToDatabase();
-    posts = await Post.find().sort({ updatedAt: -1 }).lean();
+    posts = await Post.find().sort({ updatedAt: -1 }).lean() as unknown as typeof posts;
   } catch {
     return (
       <div className="mx-auto max-w-6xl px-6 py-12">
@@ -21,6 +22,7 @@ export default async function Dashboard() {
       </div>
     );
   }
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       <div className="flex flex-wrap justify-between gap-5 items-center mb-8">
