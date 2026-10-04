@@ -34,15 +34,15 @@ export function SiteHeader() {
   return (
     <header
       className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
-        scrolled ? "border-border bg-background/95 backdrop-blur-sm" : "border-transparent bg-transparent"
+        scrolled ? "border-border bg-background/95 backdrop-blur-sm" : "border-border bg-background"
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" />
-            <span className="font-mono text-sm font-semibold tracking-wider text-foreground group-hover:text-accent transition-colors">
-              HUSTLENIX<span className="text-muted">{"//"}</span>MISSION_LOG
+            <span className="text-2xl text-accent" aria-hidden="true">✦</span>
+            <span className="font-mono text-xs sm:text-sm font-semibold tracking-wider text-foreground group-hover:text-accent transition-colors">
+              MISSION LOG<span className="hidden lg:inline text-muted"> / HUSTLENIX</span>
             </span>
           </Link>
 
@@ -74,6 +74,7 @@ export function SiteHeader() {
               <span className="font-mono text-xs text-muted">...</span>
             ) : session ? (
               <div className="flex items-center gap-3">
+                <Link href="/dashboard" className="font-mono text-xs text-accent">MY LOGS ↗</Link>
                 <span className="font-mono text-xs text-success">
                   &bull; {session.user.name?.toUpperCase() || "USER"}
                 </span>
@@ -137,6 +138,7 @@ export function SiteHeader() {
                 </Link>
                 {session ? (
                   <>
+                    <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="font-mono text-sm text-accent py-2">MY LOGS ↗</Link>
                     <span className="font-mono text-sm tracking-wider py-2 text-success">
                       &bull; {session.user.name?.toUpperCase() || "USER"}
                     </span>

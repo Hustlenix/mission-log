@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";

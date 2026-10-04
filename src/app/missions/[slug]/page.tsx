@@ -8,7 +8,9 @@ export const dynamic = "force-dynamic";
 async function getMission(slug: string) {
   try {
     await connectToDatabase();
-    const name = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const projects = await Post.distinct("project", { status: "published" });
+    const name = projects.find(project => project.toLowerCase().replace(/\s+/g, "-") === slug);
+    if (!name) return null;
     const posts = await Post.find({ project: name, status: "published" })
       .sort({ publishedAt: -1 })
       .lean();
@@ -42,7 +44,7 @@ export default async function MissionPage({ params }: { params: Promise<{ slug: 
         <div className="grid grid-cols-2 gap-6">
           <div>
             <p className="font-mono text-xs text-muted mb-1">STATUS</p>
-            <p className="font-mono text-sm font-semibold text-success">ACTIVE</p>
+            <p className="font-mono text-sm font-semibold text-success">DOCUMENTED</p>
           </div>
           <div>
             <p className="font-mono text-xs text-muted mb-1">LOGS</p>

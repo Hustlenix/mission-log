@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
 import { getAuth } from "@/lib/auth";
@@ -15,7 +16,7 @@ function isAuthorizedAuthor(email: string | null | undefined): boolean {
 
 export async function createPost(formData: FormData) {
   const auth = await getAuth();
-  const session = await auth.api.getSession();
+  const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user?.email || !isAuthorizedAuthor(session.user.email)) {
     return { error: "DENIED: Not authorized to publish" };
@@ -33,6 +34,7 @@ export async function createPost(formData: FormData) {
   }
 
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  if (!slug || title.length > 200 || excerpt.length > 500 || content.length > 100000 || !["draft", "published"].includes(status)) return { error: "Check the title, field lengths and publication status." };
 
   await connectToDatabase();
 
@@ -65,7 +67,7 @@ export async function createPost(formData: FormData) {
 
 export async function updatePost(id: string, formData: FormData) {
   const auth = await getAuth();
-  const session = await auth.api.getSession();
+  const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user?.email || !isAuthorizedAuthor(session.user.email)) {
     return { error: "DENIED: Not authorized to edit" };
@@ -90,6 +92,9 @@ export async function updatePost(id: string, formData: FormData) {
   }
 
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  if (!slug || title.length > 200 || excerpt.length > 500 || content.length > 100000 || !["draft", "published"].includes(status)) return { error: "Check the title, field lengths and publication status." };
+  if (await Post.exists({ slug, _id: { $ne: id } })) return { error: "A post with this title already exists." };
+  const oldSlug = post.slug;
 
   post.title = title;
   post.slug = slug;
@@ -107,6 +112,8 @@ export async function updatePost(id: string, formData: FormData) {
   revalidatePath("/");
   revalidatePath("/blogs");
   revalidatePath(`/blogs/${slug}`);
+  revalidatePath(`/blogs/${oldSlug}`);
+  revalidatePath("/missions");
   revalidatePath("/archive");
 
   return { success: true, slug };
@@ -114,7 +121,7 @@ export async function updatePost(id: string, formData: FormData) {
 
 export async function deletePost(id: string) {
   const auth = await getAuth();
-  const session = await auth.api.getSession();
+  const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user?.email || !isAuthorizedAuthor(session.user.email)) {
     return { error: "DENIED: Not authorized to delete" };

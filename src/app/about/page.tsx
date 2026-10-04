@@ -26,7 +26,7 @@ export default function AboutPage() {
       </div>
       <div className="flex flex-wrap gap-6 mt-12 pt-8 border-t border-border">
         <a
-          href="https://github.com"
+          href="https://github.com/Hustlenix"
           target="_blank"
           rel="noopener noreferrer"
           className="font-mono text-xs tracking-wider text-muted hover:text-accent transition-colors"

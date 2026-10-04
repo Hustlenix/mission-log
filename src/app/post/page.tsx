@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { createPost } from "@/lib/actions/posts";
+import { useRouter } from "next/navigation";
 
 const projects = ["Nightwave", "Level Up", "Iron Mario", "Clock Out Alive", "Infinite Colour Craft"];
 
 export default function NewPostPage() {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [project, setProject] = useState("");
@@ -44,6 +46,9 @@ export default function NewPostPage() {
       const result = await createPost(formData);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.success) {
+        router.push("/dashboard");
+        router.refresh();
       }
     });
   }
@@ -64,6 +69,7 @@ export default function NewPostPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            maxLength={200}
             className="w-full bg-surface border border-border px-4 py-3 text-foreground focus:outline-none focus:border-accent transition-colors"
             placeholder="Mission log title..."
           />
@@ -77,6 +83,7 @@ export default function NewPostPage() {
             onChange={(e) => setExcerpt(e.target.value)}
             rows={2}
             required
+            maxLength={500}
             className="w-full bg-surface border border-border px-4 py-3 text-foreground focus:outline-none focus:border-accent transition-colors resize-none"
             placeholder="Short description..."
           />

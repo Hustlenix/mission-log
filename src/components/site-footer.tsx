@@ -13,6 +13,7 @@ export function SiteFooter() {
             STARDANCE 2026
           </div>
         </div>
+        <p className="text-xs text-muted text-center mt-5">An independent personal journal. NASA data and imagery credited to their sources; not affiliated with or endorsed by NASA.</p>
       </div>
     </footer>
   );

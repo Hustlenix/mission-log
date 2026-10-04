@@ -27,7 +27,7 @@ async function getMissions() {
       tags: Array.from(m.tags),
     }));
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -36,8 +36,8 @@ export default async function MissionsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-      <h1 className="font-mono text-xs text-muted tracking-widest mb-8">CURRENT MISSIONS</h1>
-      {missions.length === 0 ? (
+      <p className="eyebrow text-accent mb-3">Ideas in orbit</p><h1 className="font-display text-5xl font-bold mb-8">The missions.</h1>
+      {!missions ? <p role="status" className="mission-card">Mission data is temporarily unavailable. Please try again shortly.</p> : missions.length === 0 ? (
         <p className="text-muted font-mono text-sm">No missions yet.</p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-6">
@@ -45,11 +45,11 @@ export default async function MissionsPage() {
             <Link
               key={m.name}
               href={`/missions/${m.name.toLowerCase().replace(/\s+/g, "-")}`}
-              className="group border border-border bg-surface p-6 hover:border-accent/50 transition-colors"
+              className="mission-card group hover:border-accent transition-colors"
             >
               <div className="flex items-start justify-between mb-4">
                 <h2 className="font-bold text-xl group-hover:text-accent transition-colors">{m.name}</h2>
-                <span className="font-mono text-xs px-2 py-1 text-success">ACTIVE</span>
+                <span className="font-mono text-xs px-2 py-1 text-success">LOGGED</span>
               </div>
               <p className="text-muted text-sm mb-4">{m.count} LOGS</p>
               <p className="font-mono text-xs text-muted">{m.tags.join(" · ")}</p>

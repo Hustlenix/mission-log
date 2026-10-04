@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --surface: #111111;
-  --surface-raised: #1a1a1a;
-  --foreground: #e8e4df;
-  --muted: #6b6b6b;
-  --border: #2a2a2a;
-  --accent: #ff4d2e;
-  --accent-dim: #cc3d24;
-  --success: #4ade80;
-  --danger: #ef4444;
+  --background: #fff9ed;
+  --surface: #ffffff;
+  --surface-raised: #e9efff;
+  --foreground: #142447;
+  --muted: #52617b;
+  --border: #cbd3e3;
+  --accent: #254edb;
+  --accent-dim: #193bad;
+  --success: #087957;
+  --danger: #bd3037;
 }
 
 @theme inline {
@@ -204,3 +204,21 @@ body {
   border-radius: 6px;
   margin: 1.5rem 0;
 }
+
+a, button, input, textarea, select { touch-action: manipulation; }
+:focus-visible { outline: 3px solid #ff783f; outline-offset: 4px; }
+input, textarea, select { border-radius: 12px; }
+.launch-button { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; padding: .9rem 1.4rem; border: 2px solid var(--foreground); border-radius: 999px; background: var(--accent); color: white; font-weight: 700; box-shadow: 4px 4px 0 var(--foreground); transition: transform .2s, box-shadow .2s; }
+.launch-button:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--foreground); }
+.launch-button.secondary { background: #ffe16c; color: var(--foreground); }
+.mission-card { border: 1px solid var(--border); border-radius: 24px; background: var(--surface); padding: 1.5rem; }
+.orbit-art { position: relative; min-height: 320px; border-radius: 50%; background: #cfe9ff; border: 2px solid var(--foreground); }
+.orbit-art svg { width: 100%; height: 100%; }
+.orbit-label { position: absolute; padding: .6rem 1rem; border: 2px solid var(--foreground); border-radius: 999px; background: #ffe16c; font: 600 .75rem var(--font-jetbrains); box-shadow: 3px 3px 0 var(--foreground); }
+.orbit-label.top { top: 10%; left: -3%; transform: rotate(-8deg); }
+.orbit-label.bottom { bottom: 8%; right: -2%; background: #a9efcb; transform: rotate(7deg); }
+.eyebrow { font: 600 .75rem var(--font-jetbrains); letter-spacing: .12em; text-transform: uppercase; }
+.space-strip { background: var(--foreground); color: white; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+.prose-mission table { display: block; overflow-x: auto; border-collapse: collapse; margin: 1.5rem 0; }
+.prose-mission th, .prose-mission td { border: 1px solid var(--border); padding: .65rem; }

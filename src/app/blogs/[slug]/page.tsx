@@ -51,7 +51,7 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const neoData = await getNeoData();
+  const neoData = await getNeoData(post.publishedAt?.toISOString().slice(0, 10));
   const readTime = Math.max(1, Math.round(post.content.split(/\s+/).length / 200));
 
   return (
@@ -109,7 +109,7 @@ export default async function BlogPostPage({
                 : ""}
             </p>
             <p className="font-mono text-xs text-muted mb-4">NEAR-EARTH ACTIVITY</p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-3 gap-4">
               <div>
                 <p className="font-mono text-xs text-muted">OBJECTS TRACKED</p>
                 <p className="font-mono text-sm">{neoData.objectsTracked}</p>

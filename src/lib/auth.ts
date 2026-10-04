@@ -3,12 +3,9 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import mongoose from "mongoose";
 import { connectToDatabase } from "./db";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let authInstance: any = null;
+let authPromise: ReturnType<typeof initializeAuth> | undefined;
 
-export async function getAuth() {
-  if (authInstance) return authInstance;
-
+async function initializeAuth() {
   await connectToDatabase();
 
   const db = mongoose.connection.db;
@@ -16,14 +13,21 @@ export async function getAuth() {
     throw new Error("MongoDB connection not established");
   }
 
-  authInstance = betterAuth({
+  const authInstance = betterAuth({
     database: mongodbAdapter(db),
     emailAndPassword: {
       enabled: true,
     },
-    secret: process.env.BETTER_AUTH_SECRET!,
+    secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   });
 
   return authInstance;
+}
+
+export async function getAuth() {
+  if (!authPromise) {
+    authPromise = initializeAuth().catch(error => { authPromise = undefined; throw error; });
+  }
+  return authPromise;
 }

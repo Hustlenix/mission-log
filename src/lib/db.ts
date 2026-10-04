@@ -28,6 +28,8 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   if (!cache.promise) {
     cache.promise = mongoose.connect(MONGO_URI, {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 8000,
     });
   }
 

@@ -16,12 +16,13 @@ async function getPosts(searchParams: SearchParams) {
     const query: Record<string, unknown> = { status: "published" };
 
     if (searchParams.q) {
+      const term = searchParams.q.slice(0, 200).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query.$or = [
-        { title: { $regex: searchParams.q, $options: "i" } },
-        { excerpt: { $regex: searchParams.q, $options: "i" } },
-        { content: { $regex: searchParams.q, $options: "i" } },
-        { project: { $regex: searchParams.q, $options: "i" } },
-        { tags: { $regex: searchParams.q, $options: "i" } },
+        { title: { $regex: term, $options: "i" } },
+        { excerpt: { $regex: term, $options: "i" } },
+        { content: { $regex: term, $options: "i" } },
+        { project: { $regex: term, $options: "i" } },
+        { tags: { $regex: term, $options: "i" } },
       ];
     }
     if (searchParams.tag) {
@@ -33,7 +34,7 @@ async function getPosts(searchParams: SearchParams) {
 
     return await Post.find(query).sort({ publishedAt: -1 }).lean();
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -47,12 +48,13 @@ export default async function ArchivePage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-      <h1 className="font-mono text-xs text-muted tracking-widest mb-8">ARCHIVE</h1>
+      <p className="eyebrow text-accent mb-3">Find your next rabbit hole</p><h1 className="font-display text-5xl font-bold mb-8">The archive.</h1>
 
       <form method="GET" className="mb-8">
         <input
           type="search"
           name="q"
+          aria-label="Search mission logs"
           defaultValue={params.q || ""}
           placeholder="Search logs..."
           className="w-full bg-surface border border-border px-4 py-3 text-foreground font-mono text-sm focus:outline-none focus:border-accent transition-colors"
@@ -70,28 +72,27 @@ export default async function ArchivePage({
         </div>
       )}
 
-      {posts.length === 0 ? (
+      {!posts ? <p role="status" className="mission-card">Search is temporarily unavailable. Please try again shortly.</p> : posts.length === 0 ? (
         <p className="text-muted font-mono text-sm">No logs found.</p>
       ) : (
         <div className="divide-y divide-border">
           {posts.map((post, i) => (
-            <Link
+            <article
               key={post._id.toString()}
-              href={`/blogs/${post.slug}`}
-              className="group flex items-baseline gap-4 py-5 hover:bg-surface/50 transition-colors"
+              className="group flex flex-wrap items-baseline gap-4 py-5 hover:bg-surface/50 transition-colors"
             >
               <span className="font-mono text-xs text-muted w-8 shrink-0">
                 {String(i + 1).padStart(3, "0")}
               </span>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h2 className="font-medium group-hover:text-accent transition-colors">
-                  {post.title}
+                  <Link href={`/blogs/${post.slug}`}>{post.title}</Link>
                 </h2>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {post.tags.map((tag) => (
                     <Link
                       key={tag}
-                      href={`/archive?tag=${tag}`}
+                      href={`/archive?tag=${encodeURIComponent(tag)}`}
                       className="font-mono text-xs text-muted hover:text-accent transition-colors"
                     >
                       #{tag}
@@ -104,7 +105,7 @@ export default async function ArchivePage({
                   ? new Date(post.publishedAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()
                   : ""}
               </span>
-            </Link>
+            </article>
           ))}
         </div>
       )}
