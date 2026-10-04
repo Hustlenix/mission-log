@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 
 const navLinks = [
@@ -16,7 +16,14 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   async function handleSignOut() {
     await authClient.signOut();
@@ -25,7 +32,11 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+    <header
+      className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
+        scrolled ? "border-border bg-background/95 backdrop-blur-sm" : "border-transparent bg-transparent"
+      }`}
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
