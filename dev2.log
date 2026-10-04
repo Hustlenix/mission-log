@@ -1,0 +1,15 @@
+
+> mission-log@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.8 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://100.105.209.72:3000
+- Environments: .env.local
+✓ Ready in 8.4s
+✓ Running next.config.ts took 525ms
+
+ GET / 200 in 15.6s (next.js: 1088ms, application-code: 14.5s)
+ GET /blogs 200 in 1087ms (next.js: 143ms, application-code: 944ms)
+ GET /about 200 in 236ms (next.js: 125ms, application-code: 111ms)
+ GET /signin 200 in 368ms (next.js: 87ms, application-code: 281ms)
