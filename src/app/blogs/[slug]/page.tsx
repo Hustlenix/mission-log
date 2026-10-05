@@ -18,6 +18,20 @@ async function getPost(slug: string) {
   }
 }
 
+async function getNeighbors(publishedAt: Date | undefined) {
+  if (!publishedAt) return { prev: null, next: null };
+  try {
+    await connectToDatabase();
+    const [prev, next] = await Promise.all([
+      Post.findOne({ status: "published", publishedAt: { $lt: publishedAt } }).sort({ publishedAt: -1 }).select("slug title").lean(),
+      Post.findOne({ status: "published", publishedAt: { $gt: publishedAt } }).sort({ publishedAt: 1 }).select("slug title").lean(),
+    ]);
+    return { prev, next };
+  } catch {
+    return { prev: null, next: null };
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -52,6 +66,7 @@ export default async function BlogPostPage({
   }
 
   const neoData = await getNeoData(post.publishedAt?.toISOString().slice(0, 10));
+  const { prev, next } = await getNeighbors(post.publishedAt);
   const readTime = Math.max(1, Math.round(post.content.split(/\s+/).length / 200));
 
   return (
@@ -127,19 +142,33 @@ export default async function BlogPostPage({
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <Link
-            href="/blogs"
-            className="font-mono text-xs text-muted hover:text-accent transition-colors"
-          >
-            &larr; ALL LOGS
-          </Link>
-          <Link
-            href="/blogs"
-            className="font-mono text-xs text-muted hover:text-accent transition-colors"
-          >
-            NEXT LOG &rarr;
-          </Link>
+        <div className="flex items-center justify-between gap-4 font-mono text-xs">
+          {prev ? (
+            <Link
+              href={`/blogs/${prev.slug}`}
+              className="text-muted hover:text-accent transition-colors text-left min-w-0"
+            >
+              <span className="block text-[10px] tracking-widest mb-1">&larr; PREVIOUS LOG</span>
+              <span className="block truncate not-italic">{prev.title}</span>
+            </Link>
+          ) : (
+            <Link href="/blogs" className="text-muted hover:text-accent transition-colors">
+              &larr; ALL LOGS
+            </Link>
+          )}
+          {next ? (
+            <Link
+              href={`/blogs/${next.slug}`}
+              className="text-muted hover:text-accent transition-colors text-right min-w-0"
+            >
+              <span className="block text-[10px] tracking-widest mb-1">NEXT LOG &rarr;</span>
+              <span className="block truncate not-italic">{next.title}</span>
+            </Link>
+          ) : (
+            <Link href="/blogs" className="text-muted hover:text-accent transition-colors">
+              NEXT LOG &rarr;
+            </Link>
+          )}
         </div>
       </footer>
     </article>

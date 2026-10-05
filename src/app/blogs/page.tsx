@@ -1,8 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "All transmissions",
+  description: "Every published mission log — field notes, experiments and builds from the HUSTLENIX project journal.",
+};
 
 async function getPosts() {
   try {

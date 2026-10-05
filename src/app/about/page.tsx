@@ -1,4 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About",
+  description: "Who writes the Mission Log and why every project gets documented: what worked, what broke, what changed.",
+};
 
 export default function AboutPage() {
   return (

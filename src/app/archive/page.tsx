@@ -1,8 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Archive",
+  description: "Search every mission log by title, keyword, tag or project.",
+};
 
 interface SearchParams {
   q?: string;

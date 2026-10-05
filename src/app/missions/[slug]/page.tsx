@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
 
@@ -23,6 +24,16 @@ async function getMission(slug: string) {
   } catch {
     return null;
   }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const mission = await getMission(slug);
+  if (!mission) return { title: "Mission not found" };
+  return {
+    title: mission.name,
+    description: `${mission.posts.length} mission log${mission.posts.length === 1 ? "" : "s"} in the ${mission.name} project.`,
+  };
 }
 
 export default async function MissionPage({ params }: { params: Promise<{ slug: string }> }) {

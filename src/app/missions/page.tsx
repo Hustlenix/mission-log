@@ -1,8 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "The missions",
+  description: "What is being built: every project currently documented in the Mission Log, with its logs and tags.",
+};
 
 async function getMissions() {
   try {

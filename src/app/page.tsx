@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
-import { getApod } from "@/lib/nasa";
+import { getApod, getNeoData } from "@/lib/nasa";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,7 @@ async function getLogs() {
 }
 
 export default async function Home() {
-  const [logs, apod] = await Promise.all([getLogs(), getApod()]);
+  const [logs, apod, neo] = await Promise.all([getLogs(), getApod(), getNeoData()]);
   return (
     <div>
       <section className="mx-auto max-w-6xl px-6 py-12 sm:py-20 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
@@ -56,6 +56,32 @@ export default async function Home() {
         </div>
       </section>
       <div className="space-strip"><div className="mx-auto max-w-6xl px-6 py-5 flex flex-wrap justify-between gap-5 font-mono text-xs"><span>✦ GAMES + HARDWARE + THE WEB</span><span>{logs.available ? `${logs.count} PUBLISHED LOGS · ${logs.projects.length} MISSIONS` : "LOG CONNECTION TEMPORARILY UNAVAILABLE"}</span><span>EARTH → IDEAS → ORBIT</span></div></div>
+      <section className="mx-auto max-w-6xl px-6 py-10" aria-labelledby="sky-now-heading">
+        <div className="border border-border bg-surface p-6 flex flex-wrap items-center gap-y-4 gap-x-10">
+          <p id="sky-now-heading" className="eyebrow text-accent">Sky now · NASA NEO feed</p>
+          {neo ? (
+            <dl className="flex flex-wrap gap-x-10 gap-y-3 font-mono text-xs grow">
+              <div>
+                <dt className="text-muted">OBJECTS TRACKED TODAY</dt>
+                <dd className="text-sm mt-1">{neo.objectsTracked}</dd>
+              </div>
+              <div>
+                <dt className="text-muted">CLOSEST APPROACH</dt>
+                <dd className="text-sm mt-1">{neo.closestApproach}</dd>
+              </div>
+              <div>
+                <dt className="text-muted">FASTEST</dt>
+                <dd className="text-sm mt-1">{neo.fastest}</dd>
+              </div>
+              <div className="ml-auto">
+                <a href="https://cneos.jpl.nasa.gov/" target="_blank" rel="noopener noreferrer" className="text-muted hover:text-accent transition-colors">JPL TRACKER ↗</a>
+              </div>
+            </dl>
+          ) : (
+            <p className="font-mono text-xs text-muted grow">SPACE FEED OFFLINE — live near-Earth numbers are temporarily unavailable.</p>
+          )}
+        </div>
+      </section>
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8"><div><p className="eyebrow text-accent mb-3">Fresh from mission control</p><h2 className="font-display text-4xl sm:text-5xl font-bold">The latest transmissions.</h2></div><Link href="/archive" className="font-bold text-accent">Search the archive ↗</Link></div>
         {logs.posts.length ? <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
