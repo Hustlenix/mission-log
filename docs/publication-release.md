@@ -42,6 +42,25 @@ Do not call this paid-marketing ready until live workflows, privacy, real NASA c
 
 Screenshots: [desktop](screenshots/publication-home-desktop.png), [mobile](screenshots/publication-home-mobile.png). Machine reports remain in ignored `.vercel/qa-local/report.json` and `.vercel/qa-production/report.json`.
 
+## Production evidence — 6 October 2026
+
+- The complete live acceptance run on [Mission Log](https://mission-log-omega.vercel.app/) finished at **04:03:10 UTC**, with all **56 checks passing**. This is live browser/database evidence, separate from the mocked regression suite. It describes the verified deployment baseline below, not the unrelated older deployment that later replaced the production alias.
+- Verified deployment baseline: [`e323ad4`](https://github.com/Hustlenix/mission-log/commit/e323ad4), [Vercel deployment](https://vercel.com/hustlenixs-projects/mission-log/CGWpdGvLVXi4BLwJP5o1dnoHf1nR), production target, **Ready**. Vercel's normal Next.js/Turbopack build passed in 22 seconds; this was not a prebuilt local bundle.
+- Real signup/sign-in and persistence passed against production. A generated QA editor completed the entire CMS lifecycle; the existing owner's credential was not reset or verified. Cross-user and anonymous collection privacy checks passed.
+- All eight requested widths passed on the five main layouts. Deployed home and article screenshots were visually inspected. The README screenshots are from this production run.
+- Three additional live edge checks passed: repeated media search parameters, repeated asteroid query parameters, and repeated Earth-product parameters with a fractional frame index. Browser assertions wait for streamed content to become visible rather than treating a partially rendered shell as a completed page.
+- A post-run database check found five published starter articles, eight populated shared NASA cache records, **zero remaining QA users or articles**, and **zero credential accounts for the existing owner**. No owner writing or account was deleted.
+- Production error-log queries returned **No logs found** during the checked window. This is a point-in-time diagnostic, not an active monitoring system, alert configuration or uptime guarantee.
+- The publication branch's history does not contain `.env.local`, `.env.author.local` or the temporary database-URI scratch file from a separate local branch. The unrelated local branch was preserved and not merged into the publication branch.
+
+## Current recovery handoff
+
+Later on 6 October, another process replaced GitHub `main` with `8ccb211` and deployed the older journal UI to the production alias (`dpl_3Stjv45ygM5zXoasy9tZ2fwEL1Qm`). Do not interpret the earlier publication acceptance run as proof of the currently aliased older build. The publication work is preserved on `codex/publication`; its harmless cleanup changes include ignoring logs/URI scratch files and removing an unused component.
+
+Security configuration recovery also requires an authenticated Atlas session and a user-completed credential-change handoff. Detailed security diagnostics are kept private. Local/Vercel configuration recovery has **not** been completed.
+
+Guarded restoration of GitHub `main` awaits a separate explicit approval. Restoring a branch alone is not credential recovery; see [GitHub's sensitive-data guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository). Owner-account credential repair remains a separate approval gate.
+
 ## Deliberately incomplete
 
 This is the first substantive public-publication release, not the entire long-term platform. Email verification/password-reset delivery, self-service account deletion, newsletters/alerts, moderated community, opportunity/role-management UI, advanced orbit visualization, rich search autocomplete and an archived editorial daily-edition pipeline remain work. The daily page is explicitly a data snapshot. NASA video/audio opens the original player rather than a custom inline player. Topic descriptions are curated in source; articles are CMS-managed.

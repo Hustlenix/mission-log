@@ -24,10 +24,19 @@ const record = (name, detail) => {
 };
 let browser, db;
 async function inspect(page, name, expected = 200) {
-  const response = await page.goto(`${base}${name}`, {
-    waitUntil: "domcontentloaded",
-    timeout: 90000,
-  });
+  let response;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      response = await page.goto(`${base}${name}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      break;
+    } catch (error) {
+      if (attempt === 1 || !/Timeout|net::/.test(error.message)) throw error;
+      console.log(`RETRY transient navigation ${name}`);
+    }
+  }
   if (expected === 404) {
     assert.ok(
       [200, 404].includes(response.status()),
@@ -213,6 +222,27 @@ async function main() {
       p1 = await c1.newPage();
     monitor(p1);
     const reader = await signUp(p1, 1);
+    const readerDocument = await db
+      .collection("user")
+      .findOne({ email: reader.email });
+    assert.ok(
+      readerDocument,
+      "Production and cleanup configuration must refer to the same database",
+    );
+    async function waitForHistory(shouldExist) {
+      for (let attempt = 0; attempt < 25; attempt++) {
+        const count = await db
+          .collection("readinghistories")
+          .countDocuments({ userId: String(readerDocument._id) });
+        if (shouldExist ? count > 0 : count === 0) return;
+        await p1.waitForTimeout(1000);
+      }
+      assert.fail(
+        shouldExist
+          ? "Opted-in history was not persisted"
+          : "Cleared history still exists in storage",
+      );
+    }
     record("reader signup through the real form");
     await inspect(p1, "/articles/the-station-ends-the-work-doesnt");
     await p1.getByRole("button", { name: "Save", exact: true }).click();
@@ -303,18 +333,20 @@ async function main() {
       .waitFor();
     await inspect(p1, "/articles/the-station-ends-the-work-doesnt");
     await p1.locator(".source-block").scrollIntoViewIfNeeded();
-    await p1.waitForTimeout(11500);
+    await waitForHistory(true);
     await inspect(p1, "/account");
     assert.ok(
-      (await p1.locator("#history").innerText()).includes("scroll progress"),
+      (await p1.locator("#history").innerText()).includes("% scroll progress"),
+      "Persisted history must be visible in the account",
     );
     await p1
       .getByRole("button", { name: "Clear history", exact: true })
       .click();
-    await p1.waitForTimeout(700);
+    await waitForHistory(false);
     await p1.reload();
     assert.ok(
-      !(await p1.locator("#history").innerText()).includes("scroll progress"),
+      !(await p1.locator("#history").innerText()).includes("% scroll progress"),
+      "Cleared history must stay absent after reload",
     );
     record("history opt-in, recording and clear work");
     await inspect(p1, "/studio");
