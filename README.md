@@ -1,30 +1,26 @@
 # Mission Log
 
-Small ideas. Big orbits.
+Space, decoded daily.
 
-This is my personal build journal for games, hardware, websites, and whatever else I'm working on. A finished project doesn't tell the whole story, so the logs are a place for the experiments, broken bits, and changes along the way.
+Mission Log started as my build journal. It’s grown into an independent space publication: a place to read an explainer, check the NASA data behind it, and keep the things you want to come back to. The original project journal hasn’t gone away.
 
-The space theme runs through the site: projects are missions, posts are transmissions, and the author dashboard is mission control. Bright colours, a little rocket, and actual NASA imagery. No spacesuit required.
+[Read Mission Log](https://mission-log-omega.vercel.app/)
 
-**[Visit the blog](https://mission-log-omega.vercel.app/)**
+![Mission Log publication homepage](docs/screenshots/publication-home-desktop.png)
 
-![Mission Log homepage with the rocket illustration and NASA astronomy card](docs/screenshots/home.png)
+## What you can do
 
-## What's here
+Read source-linked stories and explainers, browse seven topic hubs, search the publication and NASA’s media archive, or inspect near-Earth approaches, space-weather observations and EPIC Earth imagery. The ISS and Generation pages connect the history to what comes next.
 
-- Markdown posts, with drafts kept out of the public blog.
-- An author dashboard for creating, editing, publishing, and deleting logs.
-- Tags, project pages, reading times, and an archive search.
-- Email/password accounts. Signing up doesn't give someone publishing access.
-- NASA's Astronomy Picture of the Day on the homepage, with a date and image credit when supplied.
-- Near-Earth Object data on article pages, using the post's publication date.
-- Mobile navigation, article metadata, and a sitemap.
+An account adds saved articles and images, topic follows, an asteroid watchlist and collections. Collections start private; sharing is a deliberate choice. Reading history is off until you enable it. The home feed uses topics you follow, rather than a mysterious recommendation score.
 
-It's a personal blog, not a general-purpose CMS. The writing tools are intentionally small.
+The editorial studio supports Markdown preview, sources, image credits, SEO fields, drafts, review, scheduling and publication. Authors work on their own drafts. Editors and admins control publication. Those rules are checked by server actions, not just hidden buttons.
 
-## Running it locally
+This is a first public-publication release, not a completed newsroom or a careers marketplace. The [release notes](docs/publication-release.md) spell out the boundaries.
 
-You'll need Node.js 20.9 or newer, npm, and a MongoDB database. Atlas works, but a local MongoDB instance is fine too.
+## Running it
+
+Next.js 16, React 19, TypeScript, Tailwind 4, Better Auth and MongoDB/Mongoose. Tested with Node 24; Next requires Node 20.9 or newer.
 
 ```sh
 git clone https://github.com/Hustlenix/mission-log.git
@@ -32,68 +28,62 @@ cd mission-log
 npm ci
 ```
 
-Copy `.env.example` to `.env.local`. On PowerShell:
+Copy `.env.example` to `.env.local`, then fill in:
 
-```powershell
-Copy-Item .env.example .env.local
-```
-
-On macOS or Linux, use `cp .env.example .env.local` instead. Fill in these values:
-
-| Variable | What to put in it |
-| --- | --- |
-| `MONGO_URI` | Your MongoDB connection string, including the database name. |
-| `BETTER_AUTH_URL` | `http://localhost:3000` for local development. |
-| `BETTER_AUTH_SECRET` | A long, randomly generated secret. Keep it private. |
-| `NASA_API_KEY` | A key from [NASA's API portal](https://api.nasa.gov/). The API calls fall back to the rate-limited `DEMO_KEY` if this is blank. |
-| `AUTHORIZED_AUTHOR_EMAILS` | The email addresses allowed to write logs, separated by commas. Use the same address as your author account. |
-
-To generate an auth secret:
-
-```sh
-node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"
-```
-
-Then start the app:
+| Variable                   | Purpose                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `MONGO_URI`                | Database connection string, including the database name.                                                           |
+| `BETTER_AUTH_URL`          | `http://localhost:3000` locally; your actual domain in production.                                                 |
+| `BETTER_AUTH_SECRET`       | A long random secret. Never commit it.                                                                             |
+| `NASA_API_KEY`             | Server-only key from [NASA](https://api.nasa.gov/). No silent demo-key fallback.                                   |
+| `AUTHORIZED_AUTHOR_EMAILS` | Owner addresses eligible for explicit server-side provisioning. Signup alone does **not** grant publishing access. |
 
 ```sh
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). On a fresh database, create an account at `/signup` using an email from your author allowlist. Sign in and head to `/dashboard` to write the first log.
-
-There's no need to run the seed script. A fresh database starts with no posts; the sample text in `seed.cjs` isn't a record of real project progress.
-
-## A few useful places in the code
-
-- `src/app/` — the public pages, dashboard, editor routes, and auth endpoint.
-- `src/components/` — navigation, footer, and the edit form with Markdown preview.
-- `src/lib/actions/posts.ts` — the publishing actions and server-side author checks.
-- `src/lib/nasa.ts` — the NASA integrations and unavailable-data handling.
-- `src/models/Post.ts` — the post schema.
-- `src/app/globals.css` — colours, typography, and the shared visual styles.
-
-The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, MongoDB/Mongoose, and Better Auth. Markdown rendering uses `react-markdown` with `remark-gfm`.
-
-## Deploying
-
-The live site runs on Vercel. For your own deployment, connect the repository and add the same five environment variables to the production environment. Set `BETTER_AUTH_URL` to your actual deployed domain, not localhost, and redeploy after changing the variables.
-
-Make sure your database's network access rules allow your hosting environment to connect. An `ENOTFOUND` error can also mean the cluster hostname is wrong or the cluster no longer exists, so check the connection string against Atlas before changing DNS settings.
-
-Keep `.env.local` and any account-credential files out of Git. Environment variables belong in your local configuration or hosting dashboard, not in the README.
-
-## Checks and rough edges
+Create your owner account at `/signup`. To provision that existing account, put `AUTHOR_EMAIL` in a private `.env.author.local` file, then run:
 
 ```sh
+node --env-file=.env.local --env-file=.env.author.local scripts/provision-owner.cjs --grant-admin
+```
+
+The script changes only that account’s server-managed role. It doesn’t mark the email verified or create an account. Reader signups remain readers. Never expose this script as a public endpoint.
+
+The five starter explainers can be imported with:
+
+```sh
+node --env-file=.env.local scripts/import-publication.cjs
+```
+
+That import only inserts missing slugs; it doesn’t overwrite existing writing. Starter articles are disclosed as AI-assisted, source-guided explainers, not original reporting. Don’t run the old seed script to fabricate journal entries.
+
+## The NASA part
+
+`src/lib/nasa/` contains separate adapters for APOD, NeoWs, DONKI, EPIC and NASA media. APOD uses the current NASA Science WordPress endpoint. Cached records are normalized before storage; upstream API links and keys aren’t sent to the browser.
+
+The cache lives in MongoDB, so it’s shared across Vercel instances. Refresh leases prevent multiple servers fetching the same cold feed. Expired records can be served with their original retrieval timestamp during an outage. Failures have a cooldown, and upstream refreshes have a fleet-wide hourly budget. If MongoDB itself is unavailable, the app doesn’t bypass the cache with an upstream request for every visitor.
+
+These are observations, not safety alerts. “Potentially hazardous” isn’t an impact forecast. EPIC imagery shows its capture date and is not a live camera. Space weather is a catalogue, not an aurora prediction.
+
+## Checks
+
+```sh
+npm test
 npm run lint
 npm run build
 ```
 
-There are no comments, reactions, image uploads, or RSS feed yet. Search is a literal, case-insensitive match rather than relevance-ranked search. Email verification and password-reset delivery aren't configured. The new-post project picker is currently a fixed list in `src/app/post/page.tsx`.
+The regression suite executes real normalization, cache and server-action code with explicit database/session mocks. It covers cache leases and outages, publishing roles, ownership checks, unsafe URLs and history opt-in.
 
-NASA services can be unavailable. The homepage prefers the current NASA Science APOD entry, with the API as a fallback; if neither works, it shows an unavailable message and a source link. The public-page reader may need updating if NASA changes its markup.
+For browser acceptance, install Playwright separately or set `PLAYWRIGHT_MODULE` to an existing installation, start the app, and run `scripts/verify-publication.cjs`. `VERIFY_URL` selects the site (default `http://localhost:3002`). With `VERIFY_ACCOUNTS=1`, local database configuration and private owner credentials, it tests signup, saved items, collections, privacy and the publishing lifecycle. `VERIFY_EDITOR_FIXTURE=1` instead grants editor access only to a generated QA account for the CMS test; it does not verify the existing owner's password. It creates labeled temporary QA fixtures and removes only those fixtures. Screenshots and reports go into ignored `.vercel/qa-*` folders. Do not run it against a database you haven't authorized for testing.
 
-NASA data and imagery belong to their respective sources. This is an independent personal project, not a NASA-affiliated site.
+## Deploying & limitations
 
-Parts of the implementation and this documentation were developed with AI assistance.
+The existing site uses Vercel. Set the same five server variables, use the deployed domain for `BETTER_AUTH_URL`, and redeploy after configuration changes. Database network rules must allow the host to connect. `ENOTFOUND` can also mean an incorrect or retired cluster hostname; check Atlas before assuming it’s your DNS.
+
+Email verification and password-reset **delivery** are not connected. Neither are newsletters, push alerts, public comments, opportunity moderation, an automated editorial daily edition, or an advanced orbital simulator. The daily page is a clearly labeled data snapshot. Basic analytics count server renders and save/follow actions, including bots and testing; they are not unique-reader measurements.
+
+The initial articles need human editorial review before paid promotion. Public-launch hardening still needs account deletion, working email recovery, a security review and production monitoring. Keep secrets out of Git, chat, screenshots and logs; rotate any credential that has been exposed.
+
+Mission Log is not affiliated with or endorsed by NASA. Images have source credits; third-party rights may apply. Parts of the implementation, documentation and initial explainers were developed with AI assistance.
