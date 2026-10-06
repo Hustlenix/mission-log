@@ -9,10 +9,20 @@ export const dynamic = "force-dynamic";
 async function getMission(slug: string) {
   try {
     await connectToDatabase();
-    const projects = await Post.distinct("project", { status: "published" });
-    const name = projects.find(project => project.toLowerCase().replace(/\s+/g, "-") === slug);
+    const journal = {
+      status: "published" as const,
+      slug: { $not: /^temp-seed-log-/ },
+      $or: [
+        { contentType: "mission-log" },
+        { contentType: { $exists: false } },
+      ],
+    };
+    const projects = await Post.distinct("project", journal);
+    const name = projects.find(
+      (project) => project.toLowerCase().replace(/\s+/g, "-") === slug,
+    );
     if (!name) return null;
-    const posts = await Post.find({ project: name, status: "published" })
+    const posts = await Post.find({ project: name, ...journal })
       .sort({ publishedAt: -1 })
       .lean();
     if (posts.length === 0) return null;
@@ -26,7 +36,11 @@ async function getMission(slug: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const mission = await getMission(slug);
   if (!mission) return { title: "Mission not found" };
@@ -36,7 +50,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function MissionPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function MissionPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const mission = await getMission(slug);
 
@@ -49,13 +67,17 @@ export default async function MissionPage({ params }: { params: Promise<{ slug: 
       <p className="font-mono text-xs text-accent tracking-widest mb-4">
         MISSION / {mission.name.toUpperCase()}
       </p>
-      <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4">{mission.name}</h1>
+      <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4">
+        {mission.name}
+      </h1>
 
       <div className="border border-border bg-surface p-6 mb-12">
         <div className="grid grid-cols-2 gap-6">
           <div>
             <p className="font-mono text-xs text-muted mb-1">STATUS</p>
-            <p className="font-mono text-sm font-semibold text-success">DOCUMENTED</p>
+            <p className="font-mono text-sm font-semibold text-success">
+              DOCUMENTED
+            </p>
           </div>
           <div>
             <p className="font-mono text-xs text-muted mb-1">LOGS</p>
@@ -68,7 +90,9 @@ export default async function MissionPage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      <h2 className="font-mono text-xs text-muted tracking-widest mb-6">LATEST TRANSMISSIONS</h2>
+      <h2 className="font-mono text-xs text-muted tracking-widest mb-6">
+        LATEST TRANSMISSIONS
+      </h2>
       <div className="divide-y divide-border">
         {mission.posts.map((post) => (
           <Link
@@ -84,7 +108,10 @@ export default async function MissionPage({ params }: { params: Promise<{ slug: 
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <Link href="/missions" className="font-mono text-xs text-muted hover:text-accent transition-colors">
+        <Link
+          href="/missions"
+          className="font-mono text-xs text-muted hover:text-accent transition-colors"
+        >
           &larr; ALL MISSIONS
         </Link>
       </div>

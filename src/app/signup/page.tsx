@@ -30,7 +30,14 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push("/");
+      const returnTo =
+        new URLSearchParams(window.location.search).get("returnTo") ||
+        "/account";
+      router.push(
+        returnTo.startsWith("/") && !returnTo.startsWith("//")
+          ? returnTo
+          : "/account",
+      );
       router.refresh();
     } catch {
       setError("Server error. Please try again.");
@@ -41,12 +48,21 @@ export default function SignUpPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 sm:px-6 py-16 sm:py-24">
-      <p className="font-mono text-xs text-accent tracking-widest mb-6">CREATE ACCOUNT</p>
-      <h1 className="text-2xl font-bold tracking-tight mb-8">Join Mission Control</h1>
+      <p className="font-mono text-xs text-accent tracking-widest mb-6">
+        CREATE ACCOUNT
+      </p>
+      <h1 className="text-2xl font-bold tracking-tight mb-8">
+        Keep what matters to you.
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="name" className="block font-mono text-xs text-muted mb-2">NAME</label>
+          <label
+            htmlFor="name"
+            className="block font-mono text-xs text-muted mb-2"
+          >
+            NAME
+          </label>
           <input
             id="name"
             type="text"
@@ -59,7 +75,12 @@ export default function SignUpPage() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block font-mono text-xs text-muted mb-2">EMAIL</label>
+          <label
+            htmlFor="email"
+            className="block font-mono text-xs text-muted mb-2"
+          >
+            EMAIL
+          </label>
           <input
             id="email"
             type="email"
@@ -72,7 +93,12 @@ export default function SignUpPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="block font-mono text-xs text-muted mb-2">PASSWORD</label>
+          <label
+            htmlFor="password"
+            className="block font-mono text-xs text-muted mb-2"
+          >
+            PASSWORD
+          </label>
           <input
             id="password"
             type="password"

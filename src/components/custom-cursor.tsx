@@ -17,12 +17,12 @@ export function CustomCursor() {
       const target = e.target as HTMLElement;
       setIsPointer(
         target.tagName === "A" ||
-        target.tagName === "BUTTON" ||
-        target.closest("a") !== null ||
-        target.closest("button") !== null ||
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.tagName === "SELECT"
+          target.tagName === "BUTTON" ||
+          target.closest("a") !== null ||
+          target.closest("button") !== null ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT",
       );
     };
 
@@ -35,7 +35,10 @@ export function CustomCursor() {
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseover", handleMouseOver);
-      document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
+      document.documentElement.removeEventListener(
+        "mouseleave",
+        handleMouseLeave,
+      );
     };
   }, []);
 

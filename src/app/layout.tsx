@@ -3,7 +3,6 @@ import { Fraunces, Karla, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { CustomCursor } from "@/components/custom-cursor";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -26,15 +25,36 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "HUSTLENIX // MISSION LOG",
+    default: "Mission Log — Space, decoded daily.",
     template: "%s | Mission Log",
   },
   description:
-    "Small ideas. Big orbits. Lalith’s colorful journal of games, hardware, experiments, and NASA-powered curiosity.",
-  metadataBase: new URL(process.env.BETTER_AUTH_URL || "https://mission-log-omega.vercel.app"),
+    "An independent space publication. Understand live NASA data, read the human stories, and find your path into what comes next.",
+  metadataBase: new URL(
+    process.env.BETTER_AUTH_URL || "https://mission-log-omega.vercel.app",
+  ),
+  openGraph: {
+    siteName: "Mission Log",
+    type: "website",
+    locale: "en_US",
+    title: "Mission Log — Space, decoded daily.",
+    description:
+      "An independent space publication. Read the science, explore NASA data, and find your next question.",
+    images: [
+      {
+        url: "https://images-assets.nasa.gov/image/iss056e201248/iss056e201248~medium.jpg",
+        alt: "International Space Station above Earth · NASA",
+      },
+    ],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
@@ -42,10 +62,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fraunces.variable} ${karla.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] bg-background p-3">Skip to content</a>
-        <CustomCursor />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] bg-background p-3"
+        >
+          Skip to content
+        </a>
         <SiteHeader />
-        <main id="main-content" className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
         <SiteFooter />
       </body>
     </html>

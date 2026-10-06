@@ -1,19 +1,41 @@
+import Link from "next/link";
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-surface">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="font-mono text-xs text-muted tracking-wider">
-            HUSTLENIX<span className="text-accent">{"//"}</span>MISSION_LOG
+    <footer className="site-footer">
+      <div className="shell">
+        <div className="footer-grid">
+          <div>
+            <Link href="/" className="wordmark">
+              MISSION LOG ↗
+            </Link>
+            <p>
+              Space, decoded daily. An independent publication about the
+              science, the people, and what we build next.
+            </p>
           </div>
-          <div className="font-mono text-xs text-muted tracking-wider">
-            BUILDING THINGS UNTIL THEY WORK
+          <div>
+            <Link href="/latest">Read the publication</Link>
+            <Link href="/live">Live space data</Link>
+            <Link href="/media">NASA media archive</Link>
+            <Link href="/missions">Builder journal</Link>
           </div>
-          <div className="font-mono text-xs text-muted tracking-wider">
-            STARDANCE 2026
+          <div>
+            <Link href="/about">About & editorial policy</Link>
+            <Link href="/account">Your Mission Log</Link>
+            <Link href="/studio">Editorial studio</Link>
+            <a href="https://github.com/Hustlenix/mission-log">Source code ↗</a>
           </div>
         </div>
-        <p className="text-xs text-muted text-center mt-5">An independent personal journal. NASA data and imagery credited to their sources; not affiliated with or endorsed by NASA.</p>
+        <p>
+          Not affiliated with or endorsed by NASA. NASA/JPL data and selected
+          imagery are credited to their sources. Third-party image rights may
+          apply. No advertising trackers; private saves and reading history
+          belong to your account.
+        </p>
+        <p className="metadata mt-4">
+          © {new Date().getUTCFullYear()} Mission Log / Hustlenix · All times
+          UTC unless stated.
+        </p>
       </div>
     </footer>
   );

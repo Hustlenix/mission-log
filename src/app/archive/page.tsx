@@ -19,10 +19,15 @@ interface SearchParams {
 async function getPosts(searchParams: SearchParams) {
   try {
     await connectToDatabase();
-    const query: Record<string, unknown> = { status: "published" };
+    const query: Record<string, unknown> = {
+      status: "published",
+      slug: { $not: /^temp-seed-log-/ },
+    };
 
     if (searchParams.q) {
-      const term = searchParams.q.slice(0, 200).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const term = searchParams.q
+        .slice(0, 200)
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query.$or = [
         { title: { $regex: term, $options: "i" } },
         { excerpt: { $regex: term, $options: "i" } },
@@ -54,7 +59,8 @@ export default async function ArchivePage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-      <p className="eyebrow text-accent mb-3">Find your next rabbit hole</p><h1 className="font-display text-5xl font-bold mb-8">The archive.</h1>
+      <p className="eyebrow text-accent mb-3">Find your next rabbit hole</p>
+      <h1 className="font-display text-5xl font-bold mb-8">The archive.</h1>
 
       <form method="GET" className="mb-8">
         <input
@@ -72,13 +78,20 @@ export default async function ArchivePage({
           <span className="font-mono text-xs text-muted">
             Filtered by: <span className="text-accent">#{params.tag}</span>
           </span>
-          <Link href="/archive" className="font-mono text-xs text-muted hover:text-accent ml-4">
+          <Link
+            href="/archive"
+            className="font-mono text-xs text-muted hover:text-accent ml-4"
+          >
             Clear
           </Link>
         </div>
       )}
 
-      {!posts ? <p role="status" className="mission-card">Search is temporarily unavailable. Please try again shortly.</p> : posts.length === 0 ? (
+      {!posts ? (
+        <p role="status" className="mission-card">
+          Search is temporarily unavailable. Please try again shortly.
+        </p>
+      ) : posts.length === 0 ? (
         <p className="text-muted font-mono text-sm">No logs found.</p>
       ) : (
         <div className="divide-y divide-border">
@@ -108,7 +121,13 @@ export default async function ArchivePage({
               </div>
               <span className="font-mono text-xs text-muted shrink-0">
                 {post.publishedAt
-                  ? new Date(post.publishedAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()
+                  ? new Date(post.publishedAt)
+                      .toLocaleDateString("en-US", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                      .toUpperCase()
                   : ""}
               </span>
             </article>

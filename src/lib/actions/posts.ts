@@ -1,142 +1,214 @@
 "use server";
-
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { connectToDatabase } from "@/lib/db";
 import { Post } from "@/models/Post";
-import { getAuth } from "@/lib/auth";
-
-function isAuthorizedAuthor(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const authorized = process.env.AUTHORIZED_AUTHOR_EMAILS;
-  if (!authorized) return false;
-  return authorized.split(",").map((e) => e.trim().toLowerCase()).includes(email.toLowerCase());
+import { getSession, getRole } from "../session";
+import { withinLimit } from "../rate-limit";
+import { topics } from "../catalog";
+import { safeUrl } from "../nasa/normalize";
+const types = [
+  "story",
+  "news",
+  "explainer",
+  "deep-dive",
+  "daily-brief",
+  "guide",
+  "timeline",
+  "profile",
+  "list",
+  "mission-log",
+  "data-story",
+  "opinion",
+  "interactive",
+];
+function value(form: FormData, key: string) {
+  const v = form.get(key);
+  return typeof v === "string" ? v.trim() : "";
 }
-
-export async function createPost(formData: FormData) {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session?.user?.email || !isAuthorizedAuthor(session.user.email)) {
-    return { error: "DENIED: Not authorized to publish" };
-  }
-
-  const title = formData.get("title") as string;
-  const excerpt = formData.get("excerpt") as string;
-  const content = formData.get("content") as string;
-  const project = formData.get("project") as string;
-  const tags = (formData.get("tags") as string || "").split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
-  const status = formData.get("status") as "draft" | "published";
-
-  if (!title || !excerpt || !content || !project) {
-    return { error: "Missing required fields" };
-  }
-
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  if (!slug || title.length > 200 || excerpt.length > 500 || content.length > 100000 || !["draft", "published"].includes(status)) return { error: "Check the title, field lengths and publication status." };
-
-  await connectToDatabase();
-
-  const existing = await Post.findOne({ slug });
-  if (existing) {
-    return { error: "A post with this title already exists" };
-  }
-
-  const post = await Post.create({
-    slug,
-    title,
-    excerpt,
-    content,
-    project,
-    tags,
-    status,
-    publishedAt: status === "published" ? new Date() : undefined,
-    authorId: session.user.id,
+function parse(form: FormData) {
+  const title = value(form, "title"),
+    excerpt = value(form, "excerpt"),
+    content = value(form, "content"),
+    status = value(form, "status");
+  const slug =
+    value(form, "slug") ||
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  const contentType = value(form, "contentType") || "mission-log";
+  const schedule = value(form, "scheduledAt");
+  const scheduledAt = schedule
+    ? new Date(schedule.endsWith("Z") ? schedule : schedule + "Z")
+    : undefined;
+  const coverImage = value(form, "coverImage");
+  const sources = value(form, "sources")
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const i = line.indexOf("|");
+      return {
+        title: line.slice(0, i).trim().slice(0, 150),
+        url: safeUrl(line.slice(i + 1).trim()),
+      };
+    });
+  if (
+    !title ||
+    title.length > 200 ||
+    !excerpt ||
+    excerpt.length > 500 ||
+    !content ||
+    content.length > 100000 ||
+    !slug ||
+    slug.length > 200 ||
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) ||
+    !["draft", "review", "scheduled", "published"].includes(status) ||
+    !types.includes(contentType)
+  )
+    return { error: "Check required fields, slug and length limits." } as const;
+  if (
+    status === "scheduled" &&
+    (!scheduledAt ||
+      !Number.isFinite(+scheduledAt) ||
+      +scheduledAt <= Date.now())
+  )
+    return { error: "Choose a future publication time in UTC." } as const;
+  if (
+    coverImage &&
+    (!safeUrl(coverImage) ||
+      ![
+        "images-assets.nasa.gov",
+        "assets.science.nasa.gov",
+        "www.nasa.gov",
+        "science.nasa.gov",
+        "epic.gsfc.nasa.gov",
+      ].includes(new URL(coverImage).hostname))
+  )
+    return {
+      error: "Use an HTTPS image from a supported NASA source.",
+    } as const;
+  if (coverImage && (!value(form, "coverAlt") || !value(form, "imageCredit")))
+    return { error: "Images need alt text and credit." } as const;
+  if (sources.length > 20 || sources.some((s) => !s.title || !s.url))
+    return { error: "Sources use Title | https://URL, one per line." } as const;
+  return {
+    data: {
+      title,
+      slug,
+      excerpt,
+      content,
+      project: value(form, "project") || "Space publication",
+      status: status as "draft" | "review" | "scheduled" | "published",
+      contentType,
+      tags: value(form, "tags")
+        .split(",")
+        .map((t) => t.trim().slice(0, 50))
+        .filter(Boolean)
+        .slice(0, 20),
+      topicIds: value(form, "topicIds")
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => topics.some((x) => x.slug === t)),
+      subtitle: value(form, "subtitle").slice(0, 500),
+      coverImage,
+      coverAlt: value(form, "coverAlt").slice(0, 500),
+      imageCredit: value(form, "imageCredit").slice(0, 500),
+      editorialNote: value(form, "editorialNote").slice(0, 1000),
+      seoTitle: value(form, "seoTitle").slice(0, 200),
+      seoDescription: value(form, "seoDescription").slice(0, 500),
+      featured: form.get("featured") === "true",
+      scheduledAt,
+      sources,
+    },
+  };
+}
+async function editor() {
+  const session = await getSession();
+  if (!session) return null;
+  const role = await getRole(session.user);
+  return role !== "user" ? { session, role } : null;
+}
+function refresh(slug: string) {
+  for (const path of [
+    "/",
+    "/latest",
+    "/articles",
+    "/blogs",
+    "/archive",
+    "/topics",
+    "/learn",
+    "/missions",
+    "/studio",
+    "/dashboard",
+    `/articles/${slug}`,
+    `/blogs/${slug}`,
+  ])
+    revalidatePath(path);
+}
+export async function createPost(form: FormData) {
+  const a = await editor();
+  if (!a) return { error: "You do not have author access." };
+  if (!(await withinLimit(a.session.user.id, "editor", 20)))
+    return { error: "Please wait before saving again." };
+  const result = parse(form);
+  if (result.error) return { error: result.error };
+  const data = result.data!;
+  if (a.role === "author" && ["published", "scheduled"].includes(data.status))
+    return { error: "An editor must publish or schedule." };
+  if (await Post.exists({ slug: data.slug }))
+    return { error: "That slug is already used." };
+  const p = await Post.create({
+    ...data,
+    authorId: a.session.user.id,
+    publishedAt: data.status === "published" ? new Date() : data.scheduledAt,
   });
-
-  revalidatePath("/");
-  revalidatePath("/blogs");
-  revalidatePath("/archive");
-
-  if (status === "published") {
-    redirect(`/blogs/${post.slug}`);
-  }
-  return { success: true, slug: post.slug };
+  refresh(p.slug);
+  return { success: true, slug: p.slug };
 }
-
-export async function updatePost(id: string, formData: FormData) {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session?.user?.email || !isAuthorizedAuthor(session.user.email)) {
-    return { error: "DENIED: Not authorized to edit" };
-  }
-
-  const title = formData.get("title") as string;
-  const excerpt = formData.get("excerpt") as string;
-  const content = formData.get("content") as string;
-  const project = formData.get("project") as string;
-  const tags = (formData.get("tags") as string || "").split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
-  const status = formData.get("status") as "draft" | "published";
-
-  if (!title || !excerpt || !content || !project) {
-    return { error: "Missing required fields" };
-  }
-
-  await connectToDatabase();
-
-  const post = await Post.findById(id);
-  if (!post) {
-    return { error: "Post not found" };
-  }
-
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  if (!slug || title.length > 200 || excerpt.length > 500 || content.length > 100000 || !["draft", "published"].includes(status)) return { error: "Check the title, field lengths and publication status." };
-  if (await Post.exists({ slug, _id: { $ne: id } })) return { error: "A post with this title already exists." };
-  const oldSlug = post.slug;
-
-  post.title = title;
-  post.slug = slug;
-  post.excerpt = excerpt;
-  post.content = content;
-  post.project = project;
-  post.tags = tags;
-  post.status = status;
-  if (status === "published" && !post.publishedAt) {
-    post.publishedAt = new Date();
-  }
-
-  await post.save();
-
-  revalidatePath("/");
-  revalidatePath("/blogs");
-  revalidatePath(`/blogs/${slug}`);
-  revalidatePath(`/blogs/${oldSlug}`);
-  revalidatePath("/missions");
-  revalidatePath("/archive");
-
-  return { success: true, slug };
+export async function updatePost(id: string, form: FormData) {
+  const a = await editor();
+  if (!a || !/^[a-f0-9]{24}$/i.test(id)) return { error: "Access denied." };
+  const p = await Post.findById(id);
+  if (
+    !p ||
+    (a.role === "author" &&
+      (p.authorId !== a.session.user.id ||
+        ["published", "scheduled"].includes(p.status)))
+  )
+    return { error: "Access denied." };
+  if (!(await withinLimit(a.session.user.id, "editor", 20)))
+    return { error: "Please wait before saving again." };
+  const result = parse(form);
+  if (result.error) return { error: result.error };
+  const data = result.data!;
+  if (a.role === "author" && ["published", "scheduled"].includes(data.status))
+    return { error: "An editor must publish or schedule." };
+  if (await Post.exists({ slug: data.slug, _id: { $ne: id } }))
+    return { error: "That slug is already used." };
+  const old = p.slug;
+  Object.assign(p, data);
+  if (
+    data.status === "published" &&
+    (!p.publishedAt || +p.publishedAt > Date.now())
+  )
+    p.publishedAt = new Date();
+  if (data.status === "scheduled") p.publishedAt = data.scheduledAt;
+  await p.save();
+  refresh(p.slug);
+  refresh(old);
+  return { success: true, slug: p.slug };
 }
-
 export async function deletePost(id: string) {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session?.user?.email || !isAuthorizedAuthor(session.user.email)) {
-    return { error: "DENIED: Not authorized to delete" };
-  }
-
-  await connectToDatabase();
-
-  const post = await Post.findByIdAndDelete(id);
-  if (!post) {
-    return { error: "Post not found" };
-  }
-
-  revalidatePath("/");
-  revalidatePath("/blogs");
-  revalidatePath("/archive");
-
-  redirect("/blogs");
+  const a = await editor();
+  if (!a || !/^[a-f0-9]{24}$/i.test(id)) return { error: "Access denied." };
+  const p = await Post.findById(id);
+  if (
+    !p ||
+    (a.role === "author" &&
+      (p.authorId !== a.session.user.id ||
+        ["published", "scheduled"].includes(p.status)))
+  )
+    return { error: "Only an editor can delete published work." };
+  await p.deleteOne();
+  refresh(p.slug);
+  return { success: true };
 }

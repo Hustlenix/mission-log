@@ -1,17 +1,20 @@
 import { getAuth } from "@/lib/auth";
 
 export async function GET(request: Request) {
-  const auth = await getAuth();
-  if (!auth) {
-    return new Response("Auth not initialized", { status: 500 });
+  try {
+    const auth = await getAuth();
+    return await auth.handler(request);
+  } catch {
+    return Response.json(
+      {
+        message:
+          "Account service is temporarily unavailable. Please try again.",
+      },
+      { status: 503 },
+    );
   }
-  return auth.handler(request);
 }
 
 export async function POST(request: Request) {
-  const auth = await getAuth();
-  if (!auth) {
-    return new Response("Auth not initialized", { status: 500 });
-  }
-  return auth.handler(request);
+  return GET(request);
 }

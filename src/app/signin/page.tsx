@@ -29,7 +29,14 @@ export default function SignInPage() {
         return;
       }
 
-      router.push("/");
+      const returnTo =
+        new URLSearchParams(window.location.search).get("returnTo") ||
+        "/account";
+      router.push(
+        returnTo.startsWith("/") && !returnTo.startsWith("//")
+          ? returnTo
+          : "/account",
+      );
       router.refresh();
     } catch {
       setError("Server error. Please try again.");
@@ -40,12 +47,19 @@ export default function SignInPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 sm:px-6 py-16 sm:py-24">
-      <p className="font-mono text-xs text-accent tracking-widest mb-6">SIGN IN</p>
-      <h1 className="text-2xl font-bold tracking-tight mb-8">Access Mission Control</h1>
+      <p className="font-mono text-xs text-accent tracking-widest mb-6">
+        SIGN IN
+      </p>
+      <h1 className="text-2xl font-bold tracking-tight mb-8">
+        Your Mission Log
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block font-mono text-xs text-muted mb-2">
+          <label
+            htmlFor="email"
+            className="block font-mono text-xs text-muted mb-2"
+          >
             EMAIL
           </label>
           <input
@@ -60,7 +74,10 @@ export default function SignInPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="block font-mono text-xs text-muted mb-2">
+          <label
+            htmlFor="password"
+            className="block font-mono text-xs text-muted mb-2"
+          >
             PASSWORD
           </label>
           <input
@@ -74,9 +91,7 @@ export default function SignInPage() {
           />
         </div>
 
-        {error && (
-          <p className="font-mono text-xs text-danger">{error}</p>
-        )}
+        {error && <p className="font-mono text-xs text-danger">{error}</p>}
 
         <button
           type="submit"

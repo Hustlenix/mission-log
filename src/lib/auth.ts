@@ -18,6 +18,16 @@ async function initializeAuth() {
     emailAndPassword: {
       enabled: true,
     },
+    rateLimit: {
+      enabled: true,
+      storage: "database",
+      window: 60,
+      max: 100,
+      customRules: {
+        "/sign-in/email": { window: 60, max: 10 },
+        "/sign-up/email": { window: 60, max: 5 },
+      },
+    },
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   });
@@ -27,7 +37,10 @@ async function initializeAuth() {
 
 export async function getAuth() {
   if (!authPromise) {
-    authPromise = initializeAuth().catch(error => { authPromise = undefined; throw error; });
+    authPromise = initializeAuth().catch((error) => {
+      authPromise = undefined;
+      throw error;
+    });
   }
   return authPromise;
 }

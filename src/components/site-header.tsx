@@ -1,171 +1,147 @@
 "use client";
-
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-
-const navLinks = [
-  { href: "/blogs", label: "LOGS" },
-  { href: "/missions", label: "MISSIONS" },
-  { href: "/archive", label: "ARCHIVE" },
-  { href: "/about", label: "ABOUT" },
+const links = [
+  { href: "/latest", label: "Latest" },
+  { href: "/live", label: "Live" },
+  { href: "/topics", label: "Explore" },
+  { href: "/learn", label: "Learn" },
+  { href: "/generation", label: "Future" },
 ];
-
 export function SiteHeader() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const { data: session, isPending } = authClient.useSession();
-
+  const [open, setOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const { data: session } = authClient.useSession();
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        (e.key === "k" && (e.ctrlKey || e.metaKey)) ||
+        (e.key === "/" &&
+          !/INPUT|TEXTAREA|SELECT/.test((e.target as HTMLElement).tagName))
+      ) {
+        e.preventDefault();
+        dialog.current?.showModal();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  async function handleSignOut() {
-    await authClient.signOut();
-    router.push("/");
-    router.refresh();
-  }
-
   return (
-    <header
-      className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
-        scrolled ? "border-border bg-background/95 backdrop-blur-sm" : "border-border bg-background"
-      }`}
-    >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <span className="text-2xl text-accent" aria-hidden="true">✦</span>
-            <span className="font-mono text-xs sm:text-sm font-semibold tracking-wider text-foreground group-hover:text-accent transition-colors">
-              MISSION LOG<span className="hidden lg:inline text-muted"> / HUSTLENIX</span>
+    <header className="site-header">
+      <div className="shell">
+        <div className="nav-bar">
+          <Link href="/" className="wordmark">
+            <span className="brand-mark" aria-hidden="true">
+              ↗
             </span>
+            MISSION LOG
           </Link>
-
-          <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
-            {navLinks.map((link) => (
+          <nav className="desktop-nav" aria-label="Main navigation">
+            {links.map((l) => (
               <Link
-                key={link.href}
-                href={link.href}
-                className={`font-mono text-xs tracking-wider transition-colors ${
-                  pathname.startsWith(link.href)
-                    ? "text-accent"
-                    : "text-muted hover:text-foreground"
-                }`}
+                key={l.href}
+                href={l.href}
+                className={pathname.startsWith(l.href) ? "nav-active" : ""}
               >
-                {link.label}
+                {l.label}
               </Link>
             ))}
           </nav>
-
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/archive"
-              className="font-mono text-xs tracking-wider text-muted hover:text-foreground transition-colors"
-              aria-label="Search"
+          <div className="nav-actions">
+            <button
+              onClick={() => dialog.current?.showModal()}
+              aria-label="Search Mission Log"
             >
-              [SEARCH]
+              Search <span className="muted hidden lg:inline">/</span>
+            </button>
+            <Link
+              className="account-link"
+              href={session ? "/account" : "/signin"}
+            >
+              {session ? "My log" : "Sign in"}
             </Link>
-            {isPending ? (
-              <span className="font-mono text-xs text-muted">...</span>
-            ) : session ? (
-              <div className="flex items-center gap-3">
-                <Link href="/dashboard" className="font-mono text-xs text-accent">MY LOGS ↗</Link>
-                <span className="font-mono text-xs text-success">
-                  &bull; {session.user.name?.toUpperCase() || "USER"}
-                </span>
-                <button
-                  onClick={handleSignOut}
-                  className="font-mono text-xs tracking-wider text-muted hover:text-foreground transition-colors"
-                >
-                  SIGN_OUT
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/signin"
-                className="font-mono text-xs tracking-wider text-muted hover:text-foreground transition-colors"
-              >
-                SIGN_IN
-              </Link>
-            )}
           </div>
-
           <button
-            className="md:hidden p-2 text-muted hover:text-foreground"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            className="mobile-toggle"
             aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen(!open)}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              {mobileOpen ? (
-                <path d="M5 5l10 10M15 5L5 15" />
-              ) : (
-                <path d="M3 6h14M3 10h14M3 14h14" />
-              )}
-            </svg>
+            {open ? "✕" : "☰"}
           </button>
         </div>
-
-        {mobileOpen && (
-          <nav className="md:hidden border-t border-border py-4 animate-fade-in" aria-label="Mobile navigation">
-            <div className="flex flex-col gap-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`font-mono text-sm tracking-wider py-2 ${
-                    pathname.startsWith(link.href)
-                      ? "text-accent"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="border-t border-border pt-3 mt-2 flex flex-col gap-3">
-                <Link
-                  href="/archive"
-                  onClick={() => setMobileOpen(false)}
-                  className="font-mono text-sm tracking-wider py-2 text-muted hover:text-foreground"
-                >
-                  SEARCH
-                </Link>
-                {session ? (
-                  <>
-                    <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="font-mono text-sm text-accent py-2">MY LOGS ↗</Link>
-                    <span className="font-mono text-sm tracking-wider py-2 text-success">
-                      &bull; {session.user.name?.toUpperCase() || "USER"}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setMobileOpen(false);
-                        handleSignOut();
-                      }}
-                      className="font-mono text-sm tracking-wider py-2 text-muted hover:text-foreground text-left"
-                    >
-                      SIGN_OUT
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    href="/signin"
-                    onClick={() => setMobileOpen(false)}
-                    className="font-mono text-sm tracking-wider py-2 text-muted hover:text-foreground"
-                  >
-                    SIGN_IN
-                  </Link>
-                )}
-              </div>
-            </div>
+        {open && (
+          <nav
+            id="mobile-nav"
+            className="mobile-nav"
+            aria-label="Mobile navigation"
+          >
+            {[
+              ...links,
+              {
+                href: session ? "/account" : "/signin",
+                label: session ? "My log" : "Sign in",
+              },
+            ].map((l) => (
+              <Link key={l.href} href={l.href} onClick={() => setOpen(false)}>
+                {l.label}
+              </Link>
+            ))}
           </nav>
         )}
       </div>
+      <dialog
+        ref={dialog}
+        className="search-dialog"
+        aria-labelledby="search-heading"
+      >
+        <div className="flex justify-between items-center">
+          <h2 id="search-heading" className="eyebrow">
+            Search Mission Log
+          </h2>
+          <button
+            aria-label="Close search"
+            onClick={() => dialog.current?.close()}
+            className="p-3"
+          >
+            ✕
+          </button>
+        </div>
+        <form
+          action="/search"
+          className="search-form"
+          onSubmit={() => dialog.current?.close()}
+        >
+          <input
+            autoFocus
+            name="q"
+            aria-label="Search space"
+            placeholder="Mars, asteroids, space stations…"
+            maxLength={120}
+          />
+          <button className="button">Search</button>
+        </form>
+        <p className="muted text-sm">
+          Articles, topics, explainers, NASA media and near-Earth objects.
+        </p>
+        <div className="actions">
+          {["asteroids", "iss", "moon"].map((t) => (
+            <Link
+              key={t}
+              href={`/search?q=${t}`}
+              onClick={() => dialog.current?.close()}
+              className="tag"
+            >
+              {t}
+            </Link>
+          ))}
+        </div>
+        <p className="metadata">Esc to close · Enter to search</p>
+      </dialog>
     </header>
   );
 }

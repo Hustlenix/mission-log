@@ -1,35 +1,35 @@
 import type { MetadataRoute } from "next";
-import { connectToDatabase } from "@/lib/db";
-import { Post } from "@/models/Post";
+import { getArticles } from "@/lib/publication";
+import { topics } from "@/lib/catalog";
 export const dynamic = "force-dynamic";
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
-
-  try {
-    await connectToDatabase();
-    const posts = await Post.find({ status: "published" }).lean();
-
-    const postUrls = posts.map((post) => ({
-      url: `${baseUrl}/blogs/${post.slug}`,
-      lastModified: post.updatedAt || post.createdAt,
-    }));
-
-    return [
-      { url: baseUrl, lastModified: new Date() },
-      { url: `${baseUrl}/blogs`, lastModified: new Date() },
-      { url: `${baseUrl}/about`, lastModified: new Date() },
-      { url: `${baseUrl}/missions`, lastModified: new Date() },
-      { url: `${baseUrl}/archive`, lastModified: new Date() },
-      ...postUrls,
-    ];
-  } catch {
-    return [
-      { url: baseUrl, lastModified: new Date() },
-      { url: `${baseUrl}/blogs`, lastModified: new Date() },
-      { url: `${baseUrl}/about`, lastModified: new Date() },
-      { url: `${baseUrl}/missions`, lastModified: new Date() },
-      { url: `${baseUrl}/archive`, lastModified: new Date() },
-    ];
-  }
+  const base =
+    process.env.BETTER_AUTH_URL || "https://mission-log-omega.vercel.app";
+  const routes = [
+    "",
+    "/latest",
+    "/topics",
+    "/learn",
+    "/live",
+    "/live/asteroids",
+    "/live/space-weather",
+    "/live/earth",
+    "/media",
+    "/daily",
+    "/iss",
+    "/generation",
+    "/future",
+    "/about",
+    "/missions",
+    "/archive",
+  ];
+  const posts = await getArticles();
+  return [
+    ...routes.map((path) => ({ url: `${base}${path}` })),
+    ...topics.map((t) => ({ url: `${base}/topics/${t.slug}` })),
+    ...(posts || []).map((p) => ({
+      url: `${base}/articles/${p.slug}`,
+      lastModified: p.updatedAt,
+    })),
+  ];
 }

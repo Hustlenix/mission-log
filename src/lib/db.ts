@@ -9,7 +9,10 @@ declare global {
   var _mongooseCache: MongooseCache | undefined;
 }
 
-const cache: MongooseCache = global._mongooseCache ?? { conn: null, promise: null };
+const cache: MongooseCache = global._mongooseCache ?? {
+  conn: null,
+  promise: null,
+};
 global._mongooseCache = cache;
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
@@ -17,7 +20,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
 
   if (!MONGO_URI) {
     throw new Error(
-      "MONGO_URI is not set. Add it to your .env.local file. See .env.example."
+      "MONGO_URI is not set. Add it to your .env.local file. See .env.example.",
     );
   }
 

@@ -1,0 +1,117 @@
+[
+  {
+    "slug": "the-station-ends-the-work-doesnt",
+    "title": "The station ends. The work doesn’t.",
+    "excerpt": "The ISS is approaching a transition, not the end of human curiosity in orbit. Here’s what gets handed to the next generation.",
+    "contentType": "story",
+    "topicIds": ["iss"],
+    "featured": true,
+    "coverImage": "https://images-assets.nasa.gov/image/iss056e201248/iss056e201248~medium.jpg",
+    "coverAlt": "International Space Station seen above the Earth",
+    "imageCredit": "NASA · ISS Expedition 56 / iss056e201248 · archival photograph",
+    "content": "## A laboratory with people inside\n\nThe International Space Station is not simply a destination. It is a place where crews maintain equipment, conduct experiments, repair systems and learn to work away from Earth. Assembly began in 1998. Continuous human occupation began on 2 November 2000.\n\nThat distinction matters. A spacecraft can arrive somewhere spectacular and leave. A working station has to keep supporting people through the ordinary days in between. Water, air, communications, spare parts and research all have to keep moving.\n\n## A plan, not a fixed goodbye\n\nNASA currently plans to operate the station through 2030. That is an operational planning horizon, not an announced date for a last crew photograph or a final orbit. The transition depends on safety, international cooperation and the readiness of future destinations.\n\nNASA is supporting commercial space-station development so that research and other activity can continue in low Earth orbit. A proposal is not the same thing as an operating laboratory: design, testing, launch and sustained operations still need to happen.\n\n## What the next generation inherits\n\nThe useful inheritance is not just hardware. It is experience: operating life-support systems, organizing research, coordinating teams across borders and learning how people respond to a demanding environment.\n\nYou do not have to be an astronaut to care about that work. Software, manufacturing, medicine, science and mission operations are all parts of keeping a spacecraft useful. Start with a question you can investigate or a small system you can build.\n\nThe end of a particular station does not make its knowledge disappear. What happens next depends on what people do with it.\n\n## Keep the uncertainty in view\n\nThis page does not count down to an exact deorbit date. Follow the official transition plan for updates, and treat future station timelines as plans until the relevant milestones are achieved.",
+    "sources": [
+      {
+        "title": "NASA — ISS reference and history",
+        "url": "https://www.nasa.gov/reference/international-space-station/"
+      },
+      {
+        "title": "NASA — ISS transition questions",
+        "url": "https://www.nasa.gov/faqs-the-international-space-station-transition-plan/"
+      },
+      {
+        "title": "NASA — Commercial space stations",
+        "url": "https://www.nasa.gov/humans-in-space/commercial-space/commercial-space-stations/"
+      }
+    ]
+  },
+  {
+    "slug": "potentially-hazardous-does-not-mean-impact",
+    "title": "“Potentially hazardous” doesn’t mean “about to hit Earth.”",
+    "excerpt": "An asteroid classification describes an orbit and an estimated size. It is not an impact prediction.",
+    "contentType": "explainer",
+    "topicIds": ["asteroids"],
+    "coverImage": "https://images-assets.nasa.gov/image/PIA25329/PIA25329~medium.jpg",
+    "coverAlt": "Artist’s illustration of the DART spacecraft approaching the Didymos asteroid system",
+    "imageCredit": "NASA / Johns Hopkins APL · PIA25329 · artist’s illustration, not an observed close approach",
+    "content": "## A technical label\n\nNASA’s near-Earth-object feed includes a potentially hazardous asteroid flag. It is tempting to read that as a warning about today. It is not.\n\nJPL’s classification considers whether an asteroid’s orbit can come sufficiently close to Earth’s orbit and whether the object is large enough to warrant attention. The standard criteria include a minimum orbit intersection distance of 0.05 astronomical units or less and an absolute magnitude of 22 or brighter. Diameter depends on reflectivity, so a brightness threshold is not an exact ruler.\n\n## An approach is a separate observation\n\nA close-approach entry describes a particular encounter: a date, a relative speed and a miss distance. The classification and the encounter answer different questions. An object can be classified as potentially hazardous while its listed encounter is many lunar distances away.\n\nOne lunar distance is approximately the average Earth–Moon separation, about 384,400 kilometres. Mission Log uses this comparison to make a number easier to understand. It is not a claim that the Moon stays at a fixed distance.\n\n## Size is a range\n\nAn estimated diameter of 90–200 metres should remain a range. Selecting the largest value and calling it the measured size gives a false impression of certainty. Unless a direct measurement exists, reflectivity and other assumptions matter.\n\n## What would an impact assessment require?\n\nAn impact assessment needs orbital observations and uncertainty analysis, not a dramatic percentage inferred from a miss distance. JPL’s Sentry system is a different tool from a daily list of approaches. Mission Log does not calculate an independent impact probability.\n\nWhen using the explorer, read the date, distance and NASA classification together. Follow the JPL object link for deeper orbital context. A useful tracker makes the distinctions visible instead of turning every passing object into an emergency.",
+    "sources": [
+      {
+        "title": "JPL CNEOS — NEO groups and PHA criteria",
+        "url": "https://cneos.jpl.nasa.gov/about/neo_groups.html"
+      },
+      {
+        "title": "NASA — Asteroid overview",
+        "url": "https://science.nasa.gov/solar-system/asteroids/"
+      },
+      {
+        "title": "JPL — Sentry impact monitoring",
+        "url": "https://cneos.jpl.nasa.gov/sentry/"
+      }
+    ]
+  },
+  {
+    "slug": "a-solar-flare-is-not-a-cme",
+    "title": "A solar flare is not a coronal mass ejection.",
+    "excerpt": "Two solar events often appear in the same headline. They are different phenomena, and their effects arrive differently.",
+    "contentType": "explainer",
+    "topicIds": ["space-weather"],
+    "coverImage": "https://images-assets.nasa.gov/image/PIA21958/PIA21958~medium.jpg",
+    "coverAlt": "An archival observation of a major solar flare",
+    "imageCredit": "NASA / SDO · PIA21958 · archival observation, not today’s event",
+    "content": "## Light and material\n\nA solar flare is a release of electromagnetic radiation. A coronal mass ejection, or CME, is an eruption of plasma and magnetic field into space. They can accompany one another, but a record of one does not establish the other.\n\nThat distinction explains why a single dramatic solar photograph is not enough to tell you what will happen on Earth. The event’s direction, strength and interaction with Earth’s magnetic environment all matter.\n\n## Reading the observation list\n\nNASA’s DONKI database organizes events such as flares, CMEs and geomagnetic storms. A flare classification describes the peak X-ray flux measured near Earth. A CME entry can include analyses that change as researchers study the event.\n\nA geomagnetic storm is a disturbance of Earth’s magnetic environment. It belongs to a different part of the chain than a bright event observed on the Sun. Mission Log keeps those categories separate.\n\n## Recorded does not mean predicted\n\nAn observation catalogue is not a local forecast. Seeing recent eruptions in DONKI does not tell you that an aurora will be visible from your street tonight. Location, darkness, weather and the evolving geomagnetic conditions matter.\n\nThe tracker shows event times and links back to the source records. A recent-event count means entries in the selected interval, not a universal activity score. No records can mean a quiet interval or a catalogue that has not yet been updated. A failed request means unavailable data, not zero activity.\n\n## A better question\n\nInstead of asking whether the Sun is dangerous today, ask what was observed, when it was observed, and what evidence connects it to an effect at Earth. That produces a more useful answer—and a better reason to keep checking the science.",
+    "sources": [
+      {
+        "title": "NASA — Space weather",
+        "url": "https://science.nasa.gov/heliophysics/focus-areas/space-weather/"
+      },
+      {
+        "title": "NASA CCMC — DONKI",
+        "url": "https://ccmc.gsfc.nasa.gov/tools/DONKI/"
+      }
+    ]
+  },
+  {
+    "slug": "earth-in-one-frame",
+    "title": "Earth in one frame—and the date that matters.",
+    "excerpt": "EPIC gives us a whole-planet perspective. The most important label beneath the image is when it was captured.",
+    "contentType": "explainer",
+    "topicIds": ["earth"],
+    "coverImage": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001386/GSFC_20171208_Archive_e001386~medium.jpg",
+    "coverAlt": "Archival Blue Marble image of Earth",
+    "imageCredit": "NASA / GSFC · Blue Marble 2012 · archival composite, not an EPIC capture",
+    "content": "## The camera away from home\n\nThe Earth Polychromatic Imaging Camera, EPIC, observes Earth from the DSCOVR spacecraft near the Sun–Earth L1 region. Its vantage point allows it to see the sunlit face of our planet rather than a small patch beneath a low-orbit satellite.\n\nThe result looks familiar: oceans, land and white clouds in a dark frame. But reading the image carefully starts with metadata, not just the picture.\n\n## Capture time is not refresh time\n\nMission Log displays the capture date supplied by EPIC. It also shows when our server fetched the metadata. Those are different clocks. A request made today may return imagery captured several days earlier.\n\nCalling that a live camera feed would be misleading. The Earth explorer says latest available imagery and lets you move through the available frames. When the service has no image for a selected date, the interface should say so rather than substitute another day without telling you.\n\n## Natural and enhanced\n\nEPIC provides different image products. Natural-colour imagery aims at a familiar view. Enhanced imagery applies processing that makes particular features easier to see. Neither should be treated as a view from a person’s window.\n\nThe source metadata also describes the image centre and spacecraft position. The coordinates are useful context, but a single visible image does not support every inference about a weather system or a climate trend. Those require appropriate measurements and analysis.\n\n## Take the whole view\n\nA full-disc picture is a good place to begin asking questions: which hemisphere is facing the camera, how cloud patterns change between frames, and how the lighting varies. Then follow the EPIC source to learn what the instrument actually measures.\n\nThe image brings the planet into one frame. The timestamp and product description keep that perspective honest.",
+    "sources": [
+      {
+        "title": "NASA EPIC — Instrument and imagery",
+        "url": "https://epic.gsfc.nasa.gov/"
+      },
+      {
+        "title": "NASA EPIC — API documentation",
+        "url": "https://epic.gsfc.nasa.gov/about/api"
+      }
+    ]
+  },
+  {
+    "slug": "the-next-crew-is-bigger-than-astronauts",
+    "title": "The next crew is bigger than astronauts.",
+    "excerpt": "Space work needs programmers, technicians, scientists and communicators. You can start learning without a promise of a job.",
+    "contentType": "guide",
+    "topicIds": ["iss", "moon"],
+    "coverImage": "https://images-assets.nasa.gov/image/GSFC_20161102_2016-21507_012/GSFC_20161102_2016-21507_012~medium.jpg",
+    "coverAlt": "Audience and NASA staff at a Webb telescope mirror reveal event",
+    "imageCredit": "NASA / GSFC · Webb mirror reveal, 2016 · archival photograph",
+    "content": "## Pick a kind of work\n\nSpace exploration is a team activity. NASA’s careers information spans science, engineering, information technology, business and many other disciplines. The person operating a spacecraft is only one part of the system that makes a mission possible.\n\nStart with what you like doing. If you like software, you could investigate scientific computing, simulations or embedded systems. If you prefer making physical things, learn about electronics, materials or manufacturing. If you enjoy explaining difficult ideas, science communication is worth exploring.\n\n## Make a small, honest project\n\nA useful first project is something you can explain and test. Build a table of asteroid approaches. Document which fields come from NASA and which comparisons you calculate. Handle an unavailable endpoint. Check that a changed date actually changes the data.\n\nThat teaches more than a spectacular screen full of numbers whose meaning you cannot explain. It also gives you something concrete to improve.\n\n## Participation is not employment\n\nNASA’s citizen-science catalogue lists projects in which people can contribute to research. Project requirements differ, so read the individual instructions. Contributing does not make you a NASA employee, and a certificate or completed tutorial does not guarantee a job.\n\nFederal employment and particular internship programmes have citizenship, education and other requirements. Do not assume that one NASA route is available to everyone. Universities, international agencies, research groups and private organizations offer other routes into space-related work.\n\n## Keep a record of what you learn\n\nWrite down your question, your method, what worked and what failed. Keep uncertainty visible. You do not need to turn a first experiment into a breakthrough to make it worth doing.\n\nThe next step is deliberately small: choose one field, read a reliable introduction, build one testable thing, and find a legitimate opportunity to learn with other people.",
+    "sources": [
+      { "title": "NASA — Careers", "url": "https://www.nasa.gov/careers/" },
+      {
+        "title": "NASA — Citizen science",
+        "url": "https://science.nasa.gov/citizen-science/"
+      },
+      {
+        "title": "NASA — Internships",
+        "url": "https://www.nasa.gov/learning-resources/internship-programs/"
+      }
+    ]
+  }
+]

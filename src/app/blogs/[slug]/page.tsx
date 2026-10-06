@@ -10,6 +10,7 @@ import { getNeoData } from "@/lib/nasa";
 export const dynamic = "force-dynamic";
 
 async function getPost(slug: string) {
+  if (slug.startsWith("temp-seed-log-")) return null;
   try {
     await connectToDatabase();
     return await Post.findOne({ slug, status: "published" }).lean();
@@ -23,8 +24,22 @@ async function getNeighbors(publishedAt: Date | undefined) {
   try {
     await connectToDatabase();
     const [prev, next] = await Promise.all([
-      Post.findOne({ status: "published", publishedAt: { $lt: publishedAt } }).sort({ publishedAt: -1 }).select("slug title").lean(),
-      Post.findOne({ status: "published", publishedAt: { $gt: publishedAt } }).sort({ publishedAt: 1 }).select("slug title").lean(),
+      Post.findOne({
+        status: "published",
+        slug: { $not: /^temp-seed-log-/ },
+        publishedAt: { $lt: publishedAt },
+      })
+        .sort({ publishedAt: -1 })
+        .select("slug title")
+        .lean(),
+      Post.findOne({
+        status: "published",
+        slug: { $not: /^temp-seed-log-/ },
+        publishedAt: { $gt: publishedAt },
+      })
+        .sort({ publishedAt: 1 })
+        .select("slug title")
+        .lean(),
     ]);
     return { prev, next };
   } catch {
@@ -65,9 +80,14 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const neoData = await getNeoData(post.publishedAt?.toISOString().slice(0, 10));
+  const neoData = await getNeoData(
+    post.publishedAt?.toISOString().slice(0, 10),
+  );
   const { prev, next } = await getNeighbors(post.publishedAt);
-  const readTime = Math.max(1, Math.round(post.content.split(/\s+/).length / 200));
+  const readTime = Math.max(
+    1,
+    Math.round(post.content.split(/\s+/).length / 200),
+  );
 
   return (
     <article className="mx-auto max-w-3xl px-4 sm:px-6 py-16">
@@ -81,11 +101,13 @@ export default async function BlogPostPage({
         <div className="flex flex-wrap items-center gap-4 font-mono text-xs text-muted">
           <span>
             {post.publishedAt
-              ? new Date(post.publishedAt).toLocaleDateString("en-US", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                }).toUpperCase()
+              ? new Date(post.publishedAt)
+                  .toLocaleDateString("en-US", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })
+                  .toUpperCase()
               : ""}
           </span>
           <span>{readTime} MIN READ</span>
@@ -93,7 +115,9 @@ export default async function BlogPostPage({
       </header>
 
       <div className="prose-mission">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {post.content}
+        </ReactMarkdown>
       </div>
 
       <footer className="mt-16 pt-8 border-t border-border">
@@ -116,14 +140,18 @@ export default async function BlogPostPage({
             </p>
             <p className="font-mono text-xs text-muted mb-4">
               {post.publishedAt
-                ? new Date(post.publishedAt).toLocaleDateString("en-US", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  }).toUpperCase()
+                ? new Date(post.publishedAt)
+                    .toLocaleDateString("en-US", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                    .toUpperCase()
                 : ""}
             </p>
-            <p className="font-mono text-xs text-muted mb-4">NEAR-EARTH ACTIVITY</p>
+            <p className="font-mono text-xs text-muted mb-4">
+              NEAR-EARTH ACTIVITY
+            </p>
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
                 <p className="font-mono text-xs text-muted">OBJECTS TRACKED</p>
@@ -148,11 +176,16 @@ export default async function BlogPostPage({
               href={`/blogs/${prev.slug}`}
               className="text-muted hover:text-accent transition-colors text-left min-w-0"
             >
-              <span className="block text-[10px] tracking-widest mb-1">&larr; PREVIOUS LOG</span>
+              <span className="block text-[10px] tracking-widest mb-1">
+                &larr; PREVIOUS LOG
+              </span>
               <span className="block truncate not-italic">{prev.title}</span>
             </Link>
           ) : (
-            <Link href="/blogs" className="text-muted hover:text-accent transition-colors">
+            <Link
+              href="/blogs"
+              className="text-muted hover:text-accent transition-colors"
+            >
               &larr; ALL LOGS
             </Link>
           )}
@@ -161,11 +194,16 @@ export default async function BlogPostPage({
               href={`/blogs/${next.slug}`}
               className="text-muted hover:text-accent transition-colors text-right min-w-0"
             >
-              <span className="block text-[10px] tracking-widest mb-1">NEXT LOG &rarr;</span>
+              <span className="block text-[10px] tracking-widest mb-1">
+                NEXT LOG &rarr;
+              </span>
               <span className="block truncate not-italic">{next.title}</span>
             </Link>
           ) : (
-            <Link href="/blogs" className="text-muted hover:text-accent transition-colors">
+            <Link
+              href="/blogs"
+              className="text-muted hover:text-accent transition-colors"
+            >
               NEXT LOG &rarr;
             </Link>
           )}

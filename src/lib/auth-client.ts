@@ -2,6 +2,5 @@
 
 import { createAuthClient } from "better-auth/react";
 
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
-});
+// Better Auth resolves the current browser origin when baseURL is omitted.
+export const authClient = createAuthClient();
