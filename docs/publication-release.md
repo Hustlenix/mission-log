@@ -53,13 +53,13 @@ Screenshots: [desktop](screenshots/publication-home-desktop.png), [mobile](scree
 - Production error-log queries returned **No logs found** during the checked window. This is a point-in-time diagnostic, not an active monitoring system, alert configuration or uptime guarantee.
 - The publication branch's history does not contain `.env.local`, `.env.author.local` or the temporary database-URI scratch file from a separate local branch. The unrelated local branch was preserved and not merged into the publication branch.
 
-## Current recovery handoff
+## Recovery incident and security handoff
 
-Later on 6 October, another process replaced GitHub `main` with `8ccb211` and deployed the older journal UI to the production alias (`dpl_3Stjv45ygM5zXoasy9tZ2fwEL1Qm`). Do not interpret the earlier publication acceptance run as proof of the currently aliased older build. The publication work is preserved on `codex/publication`; its harmless cleanup changes include ignoring logs/URI scratch files and removing an unused component.
+Later on 6 October, another process replaced GitHub `main` with `8ccb211` and deployed the older journal UI to the production alias (`dpl_3Stjv45ygM5zXoasy9tZ2fwEL1Qm`). The earlier publication acceptance run did not describe that replacement build. The publication work was preserved on `codex/publication`; its harmless cleanup changes include ignoring logs/URI scratch files and removing an unused component.
 
 Security configuration recovery also requires an authenticated Atlas session and a user-completed credential-change handoff. Detailed security diagnostics are kept private. Local/Vercel configuration recovery has **not** been completed.
 
-Guarded restoration of GitHub `main` awaits a separate explicit approval. Restoring a branch alone is not credential recovery; see [GitHub's sensitive-data guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository). Owner-account credential repair remains a separate approval gate.
+The user explicitly approved guarded restoration of GitHub `main` and the redesigned production site on 6 October. The older branch is retained only locally, and its credential-bearing history is not merged into the publication. The live alias must be checked after restoration. Restoring a branch alone is not credential recovery; see [GitHub's sensitive-data guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository). Owner-account credential repair remains a separate approval gate.
 
 ## Deliberately incomplete
 
