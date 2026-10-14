@@ -3,6 +3,7 @@ import { getNearEarthObjects } from "@/lib/nasa/neo";
 import { validDate, addDays, queryValue } from "@/lib/nasa/normalize";
 import { PageTitle, Unavailable } from "@/components/publication";
 import { FeedStamp } from "@/components/feed-stamp";
+import { approachHref } from "@/lib/nasa/approach";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Asteroid explorer",
@@ -119,7 +120,7 @@ export default async function Asteroids({
                   <tr key={`${o.id}:${o.approach.time}`}>
                     <td>
                       <Link
-                        href={`/live/asteroids/${o.id}`}
+                        href={approachHref(o.id, o.approach)}
                         className="font-bold text-lg"
                       >
                         {o.name} ↗
@@ -155,7 +156,7 @@ export default async function Asteroids({
             {rows.map((o) => (
               <div key={`${o.id}:${o.approach.time}`} className="result-row">
                 <h2>
-                  <Link href={`/live/asteroids/${o.id}`}>{o.name} ↗</Link>
+                  <Link href={approachHref(o.id, o.approach)}>{o.name} ↗</Link>
                 </h2>
                 <p className="metadata">
                   {o.approach.date} · NASA PHA: {o.hazardous ? "Yes" : "No"}

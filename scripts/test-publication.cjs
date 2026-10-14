@@ -13,6 +13,7 @@ function load(file, mocks = {}) {
       module: ts.ModuleKind.CommonJS,
       target: ts.ScriptTarget.ES2022,
       esModuleInterop: true,
+      jsx: ts.JsxEmit.ReactJSX,
     },
   }).outputText;
   const result = { exports: {} };
@@ -29,6 +30,50 @@ function load(file, mocks = {}) {
   return result.exports;
 }
 const norm = load("src/lib/nasa/normalize.ts");
+const approach = load("src/lib/nasa/approach.ts");
+test("Selected historical approach is retained, never silently replaced", () => {
+  const rows = [{date:"2020-01-01",time:"2020-01-01T00:00:00.000Z"},{date:"2030-01-01",time:"2030-01-01T00:00:00.000Z"}];
+  assert.equal(approach.selectApproach(rows, rows[0].time, "2026-10-14"), rows[0]);
+  assert.equal(approach.selectApproach(rows, "not-in-record", "2026-10-14"), null);
+  assert.equal(approach.selectApproach(rows, "", "2026-10-14"), rows[1]);
+  assert.equal(approach.selectApproach(rows, "", "2040-01-01"), rows[1]);
+  assert.equal(approach.selectApproach([], "", "2026-10-14"), null);
+  assert.equal(rows[0].date, "2020-01-01");
+});
+test("Distance bars preserve ratios for sub-lunar, lunar and distant approaches", () => {
+  for (const ld of [0, 0.1, 1, 10, 10000]) {
+    const scale = approach.distanceScale(ld);
+    assert.ok(scale.asteroidPercent >= 0 && scale.asteroidPercent <= 100);
+    assert.ok(scale.moonPercent > 0 && scale.moonPercent <= 100);
+    assert.ok(Math.abs(scale.asteroidPercent / scale.moonPercent - ld) < 1e-8);
+  }
+  for (const ld of [-1, NaN, Infinity]) assert.equal(approach.distanceScale(ld), null);
+});
+test("Comparison renders readable science values without animation or an invented orbit", () => {
+  const React = require("react");
+  const { renderToStaticMarkup } = require("react-dom/server");
+  const { ApproachDistance } = load("src/components/approach-distance.tsx", { "@/lib/nasa/approach": approach });
+  const html = renderToStaticMarkup(React.createElement(ApproachDistance, { approach: { date:"2020-01-01", time:"2020-01-01T12:30:00.000Z", lunar:2, distance:768800, speed:30000 } }));
+  assert.match(html, /width:50%/);
+  assert.match(html, /width:100%/);
+  assert.match(html, /768,800/);
+  assert.match(html, /2020-01-01 12:30/);
+  assert.match(html, /not an orbit simulation/);
+  assert.match(html, /aria-hidden="true"/);
+});
+test("Approach links round-trip an exact timestamp through URL parameters", () => {
+  const time = "2020-01-01T12:30:00.000Z";
+  const url = new URL(approach.approachHref("2099942", { time }), "https://example.invalid");
+  assert.equal(url.searchParams.get("approach"), time);
+  assert.equal(url.pathname, "/live/asteroids/2099942");
+});
+test("Invalid science values are rejected rather than plotted", () => {
+  const raw = {id:"123",name:"Test",estimated_diameter:{meters:{estimated_diameter_min:2,estimated_diameter_max:1}},close_approach_data:[]};
+  assert.throws(() => norm.normalizeAsteroid(raw), /diameter/);
+  raw.estimated_diameter.meters.estimated_diameter_max = 3;
+  raw.close_approach_data = [{orbiting_body:"Earth",epoch_date_close_approach:Infinity,close_approach_date:"2020-01-01"}];
+  assert.equal(norm.normalizeAsteroid(raw).approaches.length, 0);
+});
 test("Repeated query parameters are bounded and normalized to a scalar", () => {
   assert.equal(norm.queryValue([" Earth ", "Mars"]), "Earth");
   assert.equal(norm.queryValue({ bad: true }), "");

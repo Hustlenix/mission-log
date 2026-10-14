@@ -55,8 +55,10 @@ export function normalizeAsteroid(raw: RawObject): Asteroid {
   )
     throw new Error("Invalid NEO record");
   const diameter = raw.estimated_diameter.meters;
+  if (![diameter.estimated_diameter_min, diameter.estimated_diameter_max].every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0) || diameter.estimated_diameter_min > diameter.estimated_diameter_max)
+    throw new Error("Invalid NEO diameter estimate");
   const approaches = raw.close_approach_data
-    .filter((a) => a.orbiting_body === "Earth")
+    .filter((a) => a.orbiting_body === "Earth" && Number.isFinite(a.epoch_date_close_approach) && Number.isFinite(+new Date(a.epoch_date_close_approach)) && /^\d{4}-\d{2}-\d{2}$/.test(a.close_approach_date) && validDate(a.close_approach_date) === a.close_approach_date && a.miss_distance && a.relative_velocity)
     .map((a) => ({
       date: a.close_approach_date,
       time: new Date(a.epoch_date_close_approach).toISOString(),
@@ -64,7 +66,7 @@ export function normalizeAsteroid(raw: RawObject): Asteroid {
       lunar: Number(a.miss_distance.lunar),
       speed: Number(a.relative_velocity.kilometers_per_hour),
     }))
-    .filter((a) => [a.distance, a.lunar, a.speed].every(Number.isFinite));
+    .filter((a) => [a.distance, a.lunar, a.speed].every((n) => Number.isFinite(n) && n >= 0));
   return {
     id: raw.id,
     name: raw.name.replace(/^\(|\)$/g, ""),

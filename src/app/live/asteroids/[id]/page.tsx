@@ -4,6 +4,9 @@ import { getAsteroidById } from "@/lib/nasa/neo";
 import { PageTitle, Unavailable } from "@/components/publication";
 import { FeedStamp } from "@/components/feed-stamp";
 import { ItemActions } from "@/components/item-actions";
+import { ApproachDistance } from "@/components/approach-distance";
+import { approachHref, selectApproach } from "@/lib/nasa/approach";
+import { queryValue } from "@/lib/nasa/normalize";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
@@ -14,8 +17,10 @@ export async function generateMetadata({
 }
 export default async function ObjectPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ approach?: string | string[] }>;
 }) {
   const { id } = await params;
   if (!/^\d{1,12}$/.test(id)) notFound();
@@ -32,7 +37,8 @@ export default async function ObjectPage({
   const future = o.approaches
     .filter((a) => a.date >= now)
     .sort((a, b) => a.date.localeCompare(b.date));
-  const next = future[0];
+  const requested = queryValue((await searchParams).approach);
+  const next = selectApproach(o.approaches, requested, now);
   return (
     <div className="shell">
       <PageTitle
@@ -44,7 +50,7 @@ export default async function ObjectPage({
         <ItemActions
           type="asteroid"
           id={id}
-          href={`/live/asteroids/${id}`}
+          href={next ? approachHref(id, next) : `/live/asteroids/${id}`}
           follow
         />
         <a
@@ -72,30 +78,24 @@ export default async function ObjectPage({
           <p className="muted">Not an impact probability.</p>
         </div>
         <div>
-          <p className="eyebrow">Next listed Earth approach</p>
+          <p className="eyebrow">Selected Earth approach</p>
           <strong>{next?.date || "None in this record"}</strong>
         </div>
       </div>
-      {next && (
-        <section className="py-8">
-          <p className="eyebrow signal">A distance comparison</p>
-          <h2 className="text-3xl my-4">
-            {next.lunar.toFixed(2)} average Earth–Moon distances.
-          </h2>
-          <div className="distance-diagram">
-            <span>Earth</span>
-            <div className="distance-line" />
-            <span>{o.name}</span>
-          </div>
-          <p className="metadata">
-            {next.distance.toLocaleString("en-US", {
-              maximumFractionDigits: 0,
-            })}{" "}
-            km · Diagram is a comparison only, not an orbit or a to-scale
-            position plot.
-          </p>
-        </section>
-      )}
+      <form className="filters">
+        <label>Earth approach (UTC)
+          <select name="approach" defaultValue={next?.time || ""}>
+            {!next && <option value="">Choose an available record</option>}
+            {[...o.approaches].sort((a, b) => a.time.localeCompare(b.time)).map((a) => (
+              <option key={a.time} value={a.time}>{a.time.replace("T", " ").slice(0, 16)} UTC · {a.lunar.toFixed(2)} LD</option>
+            ))}
+          </select>
+        </label>
+        <button className="button" disabled={!o.approaches.length}>Compare approach</button>
+      </form>
+      {requested && !next && <p role="status">The requested approach is not in this NASA record. Choose a listed approach; no substitute is shown.</p>}
+      {next && <ApproachDistance approach={next} />}
+      <p className="muted">NASA’s potentially hazardous classification is based on orbital proximity and absolute magnitude, not the selected flyby distance alone. A flag is not a warning or impact probability. <a className="text-action" href="https://cneos.jpl.nasa.gov/glossary/PHA.html">Read the CNEOS definition ↗</a></p>
       <h2 className="section-heading">
         Upcoming Earth approaches in NASA’s record
       </h2>
